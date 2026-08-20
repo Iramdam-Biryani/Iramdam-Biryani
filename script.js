@@ -124,4 +124,18 @@ Location:${customerLocation || 'Not shared'}
 Please confirm my order.`;
 
   window.open(`https://wa.me/917005018537?text=${encodeURIComponent(message)}`,'_blank');
-};
+};  
+const orderType = document.getElementById('orderType');
+const customerAddress = document.getElementById('customerAddress');
+
+function updateAddressVisibility(){
+  if(orderType.value === 'Delivery'){
+    customerAddress.style.display = 'block';
+  }else{
+    customerAddress.style.display = 'none';
+    customerAddress.value = '';
+  }
+}
+
+orderType.addEventListener('change', updateAddressVisibility);
+updateAddressVisibility();
