@@ -1,96 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Iramdam Biryani | Order Online</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Order fresh biryani and curry from Iramdam Biryani, Lamphel, Imphal.">
+  <title>Iramdam Biryani | Order Online</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <p class="tag">Fresh • Local • Made with care</p>
-  <h1>Iramdam Biryani</h1>
-  <p>Lamphel, Opposite MSPDCL Office</p>
-  <div class="top-actions">
-    <a class="btn light" href="tel:7005018537">Call Now</a>
-    <a class="btn whatsapp" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank">WhatsApp</a>
+<header class="site-header">
+  <div class="wrap header-wrap">
+    <div>
+      <p class="eyebrow">Fresh • Local • Made with care</p>
+      <h1>Iramdam Biryani</h1>
+      <p class="sub">Lamphel, Opposite MSPDCL Office</p>
+    </div>
+    <div class="actions">
+      <a class="btn light" href="tel:7005018537">Call Now</a>
+      <a class="btn whatsapp" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank" rel="noopener">WhatsApp</a>
+    </div>
   </div>
 </header>
 
 <main>
-<section class="hero">
-  <div>
-    <p class="tag dark">Order from your phone</p>
-    <h2>Fresh Biryani Delivered</h2>
-    <p>Choose your dish, set the quantity, and send your order directly on WhatsApp.</p>
-    <a class="btn primary" href="#menu">View Menu</a>
-  </div>
-  <div class="emoji">🍛</div>
-</section>
-
-<section id="menu" class="section">
-  <h2>Our Menu</h2>
-  <p class="muted">Prices can be confirmed when you place your order.</p>
-
-  <div class="grid">
-    <article class="card" data-item="Chicken Biryani">
-      <div class="food">🍗</div>
-      <div class="pad">
-        <h3>Chicken Biryani</h3>
-        <p>Fragrant rice with flavourful chicken and aromatic spices.</p>
-        <div class="qtyrow">
-          <span>Quantity</span>
-          <div class="qtybox">
-            <button class="minus">−</button><span class="qty">1</span><button class="plus">+</button>
-          </div>
-        </div>
-        <button class="order">Order on WhatsApp</button>
+  <section class="hero wrap">
+    <div class="hero-copy">
+      <p class="eyebrow dark">Version 3</p>
+      <h2>Fresh food, easy ordering</h2>
+      <p>Choose your items, adjust quantities, add them to your order, then send everything to WhatsApp in one message.</p>
+      <div class="actions">
+        <a class="btn primary" href="#menu">View Menu</a>
+        <button class="btn outline" id="openCart" type="button">View Order <span id="cartCount">0</span></button>
       </div>
-    </article>
+    </div>
+    <div class="hero-visual">
+      <div class="plate">🍛</div>
+      <p>Freshly prepared</p>
+    </div>
+  </section>
 
-    <article class="card" data-item="Pork Curry">
-      <div class="food">🍲</div>
-      <div class="pad">
-        <h3>Pork Curry</h3>
-        <p>Rich and comforting pork curry, prepared fresh for your order.</p>
-        <div class="qtyrow">
-          <span>Quantity</span>
-          <div class="qtybox">
-            <button class="minus">−</button><span class="qty">1</span><button class="plus">+</button>
-          </div>
-        </div>
-        <button class="order">Order on WhatsApp</button>
+  <section class="wrap feature-strip">
+    <div>🔥 Freshly cooked</div>
+    <div>📱 Easy WhatsApp order</div>
+    <div>📍 Lamphel pickup/order point</div>
+  </section>
+
+  <section id="menu" class="wrap section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow dark">Our Menu</p>
+        <h2>Choose your favourites</h2>
       </div>
-    </article>
-  </div>
-</section>
+      <p class="muted">Prices can be added later. For now, we’ll confirm the amount on WhatsApp.</p>
+    </div>
 
-<section class="info">
-  <div class="infocard">
-    <h3>📍 Find Us</h3>
-    <p>Lamphel, Opposite MSPDCL Office</p>
-    <a href="https://www.google.com/maps/search/?api=1&query=Iramdam+Biryani+Lamphel+MSPDCL" target="_blank">Open in Google Maps →</a>
-  </div>
-  <div class="infocard">
-    <h3>📞 Order by Phone</h3>
-    <p>Call us directly to place or confirm your order.</p>
-    <a href="tel:7005018537">Call 7005018537 →</a>
-  </div>
-  <div class="infocard">
-    <h3>✅ Food Safety</h3>
-    <p>FSSAI No.</p>
-    <strong>21625001000774</strong>
-  </div>
-</section>
+    <div class="menu-grid">
+      <article class="menu-card" data-item="Chicken Biryani">
+        <div class="photo photo-biryani">
+          <div class="photo-badge">Popular</div>
+          <span>🍗🍚</span>
+        </div>
+        <div class="card-body">
+          <div class="title-row">
+            <h3>Chicken Biryani</h3>
+            <span class="price">Price on request</span>
+          </div>
+          <p>Fragrant rice with flavourful chicken and aromatic spices.</p>
+          <div class="qty-row">
+            <span>Quantity</span>
+            <div class="qty-box">
+              <button class="qty-btn minus" type="button">−</button>
+              <span class="qty">1</span>
+              <button class="qty-btn plus" type="button">+</button>
+            </div>
+          </div>
+          <button class="add-btn" type="button">Add to Order</button>
+        </div>
+      </article>
 
-<section class="cta">
-  <h2>Ready to order?</h2>
-  <p>Send your order on WhatsApp and confirm the details.</p>
-  <a class="btn whatsapp" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank">Order on WhatsApp</a>
-</section>
+      <article class="menu-card" data-item="Pork Curry">
+        <div class="photo photo-curry">
+          <span>🍲</span>
+        </div>
+        <div class="card-body">
+          <div class="title-row">
+            <h3>Pork Curry</h3>
+            <span class="price">Price on request</span>
+          </div>
+          <p>Rich and comforting pork curry, prepared fresh for your order.</p>
+          <div class="qty-row">
+            <span>Quantity</span>
+            <div class="qty-box">
+              <button class="qty-btn minus" type="button">−</button>
+              <span class="qty">1</span>
+              <button class="qty-btn plus" type="button">+</button>
+            </div>
+          </div>
+          <button class="add-btn" type="button">Add to Order</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap info-grid">
+    <div class="info-card">
+      <h3>📍 Find Us</h3>
+      <p>Lamphel, Opposite MSPDCL Office</p>
+      <a href="https://www.google.com/maps/search/?api=1&query=Iramdam+Biryani+Lamphel+MSPDCL" target="_blank" rel="noopener">Open in Google Maps →</a>
+    </div>
+    <div class="info-card">
+      <h3>📞 Call to Order</h3>
+      <p>Call us directly to place or confirm your order.</p>
+      <a href="tel:7005018537">7005018537 →</a>
+    </div>
+    <div class="info-card">
+      <h3>✅ Food Safety</h3>
+      <p>FSSAI No.</p>
+      <strong>21625001000774</strong>
+    </div>
+  </section>
 </main>
 
-<footer>© 2026 Iramdam Biryani</footer>
+<div class="cart-panel" id="cartPanel" aria-hidden="true">
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+  <aside class="cart-drawer">
+    <div class="cart-header">
+      <div>
+        <p class="eyebrow dark">Your Order</p>
+        <h2>Order Summary</h2>
+      </div>
+      <button id="closeCart" class="close-btn" type="button">×</button>
+    </div>
+
+    <div id="cartItems" class="cart-items">
+      <p class="empty">Your order is empty.</p>
+    </div>
+
+    <div class="cart-actions">
+      <button id="clearCart" class="btn outline full" type="button">Clear Order</button>
+      <button id="sendWhatsApp" class="btn whatsapp full" type="button">Send Order on WhatsApp</button>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <p>© 2026 Iramdam Biryani</p>
+  <p>Lamphel, Opposite MSPDCL Office</p>
+</footer>
+
 <script src="script.js"></script>
 </body>
 </html>

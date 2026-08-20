@@ -1,5 +1,24 @@
-# Iramdam Biryani — Version 2
+# Iramdam Biryani — Version 3
 
-Version 2 adds a modern mobile layout, quantity controls, WhatsApp ordering, a call button, Google Maps link, and food safety information.
+Version 3 adds:
 
-Replace the existing `index.html` and `style.css` in GitHub and add `script.js`. Netlify should redeploy automatically after you commit the changes.
+- Add to Order cart
+- Multi-item WhatsApp ordering
+- Better mobile design
+- Order summary drawer
+- Quantity controls
+- Call button and Google Maps link
+- FSSAI information
+- Ready for real food photos and prices later
+
+## GitHub update
+
+Replace these files in your repository:
+
+- index.html
+- style.css
+- script.js
+
+You can also replace README.md.
+
+Netlify should automatically redeploy after you commit the changes.
