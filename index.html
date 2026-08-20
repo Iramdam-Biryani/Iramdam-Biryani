@@ -1,153 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Order fresh biryani and curry from Iramdam Biryani, Lamphel, Imphal.">
-  <title>Iramdam Biryani | Order Online</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Iramdam Biryani | Order Online</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="site-header">
-  <div class="wrap header-wrap">
-    <div>
-      <p class="eyebrow">Fresh • Local • Made with care</p>
-      <h1>Iramdam Biryani</h1>
-      <p class="sub">Lamphel, Opposite MSPDCL Office</p>
-    </div>
-    <div class="actions">
-      <a class="btn light" href="tel:7005018537">Call Now</a>
-      <a class="btn whatsapp" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank" rel="noopener">WhatsApp</a>
-    </div>
+<header>
+  <p class="tag">Fresh • Local • Made with care</p>
+  <h1>Iramdam Biryani</h1>
+  <p>Lamphel, Opposite MSPDCL Office</p>
+  <div class="actions">
+    <a class="btn light" href="tel:7005018537">Call Now</a>
+    <a class="btn whatsapp" href="https://wa.me/917005018537" target="_blank">WhatsApp</a>
   </div>
 </header>
 
 <main>
-  <section class="hero wrap">
-    <div class="hero-copy">
-      <p class="eyebrow dark">Version 3</p>
-      <h2>Fresh food, easy ordering</h2>
-      <p>Choose your items, adjust quantities, add them to your order, then send everything to WhatsApp in one message.</p>
-      <div class="actions">
-        <a class="btn primary" href="#menu">View Menu</a>
-        <button class="btn outline" id="openCart" type="button">View Order <span id="cartCount">0</span></button>
+<section class="hero">
+  <h2>Version 4 — Full Menu & Pricing</h2>
+  <p>Choose size, quantity, add items to your order, and send the complete order to WhatsApp.</p>
+  <button id="openCart" class="btn primary">View Order <span id="cartCount">0</span></button>
+</section>
+
+<section class="section">
+  <h2>Our Menu</h2>
+  <p class="muted">Select your size. Total price is calculated automatically.</p>
+
+  <div class="grid">
+
+    <article class="card" data-item="Chicken Biryani">
+      <div class="food">🍗🍚</div>
+      <div class="pad">
+        <h3>Chicken Biryani</h3>
+        <select class="size-select">
+          <option value="Small" data-price="170">Small — ₹170</option>
+          <option value="Large" data-price="350">Large — ₹350</option>
+          <option value="Family Pack" data-price="950">Family Pack — ₹950</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
       </div>
-    </div>
-    <div class="hero-visual">
-      <div class="plate">🍛</div>
-      <p>Freshly prepared</p>
-    </div>
-  </section>
+    </article>
 
-  <section class="wrap feature-strip">
-    <div>🔥 Freshly cooked</div>
-    <div>📱 Easy WhatsApp order</div>
-    <div>📍 Lamphel pickup/order point</div>
-  </section>
-
-  <section id="menu" class="wrap section">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow dark">Our Menu</p>
-        <h2>Choose your favourites</h2>
+    <article class="card" data-item="Pork Curry">
+      <div class="food">🍲</div>
+      <div class="pad">
+        <h3>Pork Curry</h3>
+        <select class="size-select">
+          <option value="Small" data-price="170">Small — ₹170</option>
+          <option value="Large" data-price="360">Large — ₹360</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
       </div>
-      <p class="muted">Prices can be added later. For now, we’ll confirm the amount on WhatsApp.</p>
-    </div>
+    </article>
 
-    <div class="menu-grid">
-      <article class="menu-card" data-item="Chicken Biryani">
-        <div class="photo photo-biryani">
-          <div class="photo-badge">Popular</div>
-          <span>🍗🍚</span>
-        </div>
-        <div class="card-body">
-          <div class="title-row">
-            <h3>Chicken Biryani</h3>
-            <span class="price">Price on request</span>
-          </div>
-          <p>Fragrant rice with flavourful chicken and aromatic spices.</p>
-          <div class="qty-row">
-            <span>Quantity</span>
-            <div class="qty-box">
-              <button class="qty-btn minus" type="button">−</button>
-              <span class="qty">1</span>
-              <button class="qty-btn plus" type="button">+</button>
-            </div>
-          </div>
-          <button class="add-btn" type="button">Add to Order</button>
-        </div>
-      </article>
+    <article class="card" data-item="Chicken Boiler Mapum Thongba">
+      <div class="food">🍗</div>
+      <div class="pad">
+        <h3>Chicken Boiler Mapum Thongba</h3>
+        <select class="size-select">
+          <option value="Small" data-price="550">Small — ₹550</option>
+          <option value="Large" data-price="900">Large — ₹900</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
+      </div>
+    </article>
 
-      <article class="menu-card" data-item="Pork Curry">
-        <div class="photo photo-curry">
-          <span>🍲</span>
-        </div>
-        <div class="card-body">
-          <div class="title-row">
-            <h3>Pork Curry</h3>
-            <span class="price">Price on request</span>
-          </div>
-          <p>Rich and comforting pork curry, prepared fresh for your order.</p>
-          <div class="qty-row">
-            <span>Quantity</span>
-            <div class="qty-box">
-              <button class="qty-btn minus" type="button">−</button>
-              <span class="qty">1</span>
-              <button class="qty-btn plus" type="button">+</button>
-            </div>
-          </div>
-          <button class="add-btn" type="button">Add to Order</button>
-        </div>
-      </article>
-    </div>
-  </section>
+    <article class="card" data-item="Ngahei Mapum Thongba">
+      <div class="food">🐟</div>
+      <div class="pad">
+        <h3>Ngahei Mapum Thongba</h3>
+        <select class="size-select">
+          <option value="Small" data-price="450">Small — ₹450</option>
+          <option value="Large" data-price="750">Large — ₹750</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
+      </div>
+    </article>
 
-  <section class="wrap info-grid">
-    <div class="info-card">
-      <h3>📍 Find Us</h3>
-      <p>Lamphel, Opposite MSPDCL Office</p>
-      <a href="https://www.google.com/maps/search/?api=1&query=Iramdam+Biryani+Lamphel+MSPDCL" target="_blank" rel="noopener">Open in Google Maps →</a>
-    </div>
-    <div class="info-card">
-      <h3>📞 Call to Order</h3>
-      <p>Call us directly to place or confirm your order.</p>
-      <a href="tel:7005018537">7005018537 →</a>
-    </div>
-    <div class="info-card">
-      <h3>✅ Food Safety</h3>
-      <p>FSSAI No.</p>
-      <strong>21625001000774</strong>
-    </div>
-  </section>
+    <article class="card" data-item="Chicken Koiler Mapum Thongba">
+      <div class="food">🍗</div>
+      <div class="pad">
+        <h3>Chicken Koiler Mapum Thongba</h3>
+        <select class="size-select">
+          <option value="Full" data-price="1100">Full — ₹1100</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
+      </div>
+    </article>
+
+    <article class="card" data-item="Pork Head Full">
+      <div class="food">🐷</div>
+      <div class="pad">
+        <h3>Pork Head Full</h3>
+        <select class="size-select">
+          <option value="Full" data-price="2300">Full — ₹2300</option>
+        </select>
+        <div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus">−</button><span class="qty">1</span><button class="plus">+</button></div></div>
+        <button class="add">Add to Order</button>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="details">
+  <h2>Customer Details</h2>
+  <input id="customerName" placeholder="Your name">
+  <input id="customerPhone" placeholder="Your phone number">
+  <select id="orderType"><option>Pickup</option><option>Delivery</option></select>
+  <textarea id="customerAddress" rows="3" placeholder="Delivery address"></textarea>
+</section>
 </main>
 
-<div class="cart-panel" id="cartPanel" aria-hidden="true">
-  <div class="cart-backdrop" id="cartBackdrop"></div>
-  <aside class="cart-drawer">
-    <div class="cart-header">
-      <div>
-        <p class="eyebrow dark">Your Order</p>
-        <h2>Order Summary</h2>
-      </div>
-      <button id="closeCart" class="close-btn" type="button">×</button>
-    </div>
-
-    <div id="cartItems" class="cart-items">
-      <p class="empty">Your order is empty.</p>
-    </div>
-
-    <div class="cart-actions">
-      <button id="clearCart" class="btn outline full" type="button">Clear Order</button>
-      <button id="sendWhatsApp" class="btn whatsapp full" type="button">Send Order on WhatsApp</button>
-    </div>
+<div id="cartPanel" class="cart">
+  <div id="backdrop" class="backdrop"></div>
+  <aside class="drawer">
+    <div class="carthead"><h2>Order Summary</h2><button id="closeCart">×</button></div>
+    <div id="cartItems"><p>Your order is empty.</p></div>
+    <div class="total"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+    <button id="clearCart" class="btn outline full">Clear Order</button>
+    <button id="sendWhatsApp" class="btn whatsapp full">Send Order on WhatsApp</button>
   </aside>
 </div>
 
-<footer>
-  <p>© 2026 Iramdam Biryani</p>
-  <p>Lamphel, Opposite MSPDCL Office</p>
-</footer>
-
+<footer>© 2026 Iramdam Biryani</footer>
 <script src="script.js"></script>
 </body>
 </html>

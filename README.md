@@ -1,24 +1,11 @@
-# Iramdam Biryani — Version 3
+# Iramdam Biryani — Version 4
 
-Version 3 adds:
+Version 4 includes full pricing, size selection, automatic total calculation, customer details, pickup/delivery choice, and WhatsApp order summary.
 
-- Add to Order cart
-- Multi-item WhatsApp ordering
-- Better mobile design
-- Order summary drawer
-- Quantity controls
-- Call button and Google Maps link
-- FSSAI information
-- Ready for real food photos and prices later
-
-## GitHub update
-
-Replace these files in your repository:
-
-- index.html
-- style.css
-- script.js
-
-You can also replace README.md.
-
-Netlify should automatically redeploy after you commit the changes.
+Menu:
+- Chicken Biryani: Small ₹170, Large ₹350, Family Pack ₹950
+- Pork Curry: Small ₹170, Large ₹360
+- Chicken Boiler Mapum Thongba: Small ₹550, Large ₹900
+- Ngahei Mapum Thongba: Small ₹450, Large ₹750
+- Chicken Koiler Mapum Thongba: ₹1100
+- Pork Head Full: ₹2300
