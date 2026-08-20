@@ -66,6 +66,36 @@ document.getElementById('clearCart').onclick=()=>{
   render();
 };
 
+let customerLocation='';
+
+document.getElementById('shareLocation').onclick=()=>{
+  const status=document.getElementById('locationStatus');
+
+  if(!navigator.geolocation){
+    status.textContent='Location is not supported on this device.';
+    return;
+  }
+
+  status.textContent='Getting your location...';
+
+  navigator.geolocation.getCurrentPosition(
+    (position)=>{
+      const lat=position.coords.latitude;
+      const lng=position.coords.longitude;
+
+      customerLocation=`https://www.google.com/maps?q=${lat},${lng}`;
+
+      status.textContent='✅ Location added successfully';
+    },
+    ()=>{
+      status.textContent='Unable to get location. Please allow location permission.';
+    },
+    {
+      enableHighAccuracy:true,
+      timeout:10000
+    }
+  );
+};
 document.getElementById('sendWhatsApp').onclick=()=>{
   if(!cart.length){
     alert('Please add at least one item to your order.');
@@ -88,7 +118,8 @@ Total: ${money(total())}
 Customer: ${name||'Not provided'}
 Phone: ${phone||'Not provided'}
 Order type: ${type}
-Address: ${address||(type==='Pickup'?'Pickup from shop':'Not provided')}
+Address: ${address||(type==='Pickup'?'Pickup from shop':'Not provided')} 
+Location:${customerLocation || 'Not shared'}
 
 Please confirm my order.`;
 
