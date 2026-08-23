@@ -4,5 +4,5 @@
 .announcement-track:hover{animation-play-state:paused}
 .announcement img{display:block;width:auto;height:100%;flex:none}
 @keyframes announcementMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media(prefers-reduced-motion:reduce){.announcement-track{animation:none}}
+
 @media(max-width:700px){.announcement{height:92px}.announcement-track{animation-duration:19s}}
