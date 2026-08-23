@@ -18,9 +18,8 @@
 </header>
 
 <section class="announcement" aria-label="Featured food announcements">
-  <a class="announcement-track" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank" rel="noopener">
+  <a id="bannerMover" href="https://wa.me/917005018537?text=Hello%20Iramdam%20Biryani%2C%20I%20want%20to%20place%20an%20order." target="_blank" rel="noopener" style="display:block;width:max-content;height:100%;will-change:transform">
     <img src="food-announcement-strip.png" alt="Chicken Biryani, Pork Curry, Chicken Boiler Mapum Thongba and Pork Head Full — order on WhatsApp">
-    <img src="food-announcement-strip.png" alt="" aria-hidden="true">
   </a>
 </section>
 
@@ -146,6 +145,17 @@
   </div>
 </section>
 <footer>© 2026 Iramdam Biryani</footer>
+<script>
+  const bannerMover = document.getElementById('bannerMover');
+  let bannerX = window.innerWidth;
+  function moveBanner(){
+    bannerX -= 1.2;
+    if(bannerX <= -bannerMover.offsetWidth) bannerX = window.innerWidth;
+    bannerMover.style.transform = `translateX(${bannerX}px)`;
+    requestAnimationFrame(moveBanner);
+  }
+  requestAnimationFrame(moveBanner);
+</script>
 <script src="script.js"></script>
 </body>
 </html>
