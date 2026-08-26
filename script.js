@@ -106,6 +106,7 @@ document.getElementById('sendWhatsApp').onclick=()=>{
   const phone=document.getElementById('customerPhone').value.trim();
   const type=document.getElementById('orderType').value;
   const address=document.getElementById('customerAddress').value.trim();
+  const instructions=document.getElementById('orderInstructions').value.trim();
 
   const lines=cart.map(i=>`• ${i.qty} x ${i.name} (${i.size}) — ${money(i.price*i.qty)}`).join('\n');
 
@@ -119,6 +120,7 @@ Customer: ${name||'Not provided'}
 Phone: ${phone||'Not provided'}
 Order type: ${type}
 Address: ${address||(type==='Pickup'?'Pickup from shop':'Not provided')} 
+Special instructions: ${instructions||'None'}
 Location:${customerLocation || 'Not shared'}
 
 Please confirm my order.`;
