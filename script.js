@@ -108,6 +108,28 @@ document.getElementById('sendWhatsApp').onclick=()=>{
   const address=document.getElementById('customerAddress').value.trim();
   const instructions=document.getElementById('orderInstructions').value.trim();
 
+  if(!name){
+    document.getElementById('cartPanel').classList.remove('open');
+    alert('Please enter your name before ordering.');
+    document.getElementById('customerName').focus();
+    return;
+  }
+
+  const phoneDigits=phone.replace(/\D/g,'');
+  if(phoneDigits.length!==10){
+    document.getElementById('cartPanel').classList.remove('open');
+    alert('Please enter a valid 10-digit phone number.');
+    document.getElementById('customerPhone').focus();
+    return;
+  }
+
+  if(type==='Delivery'&&!address){
+    document.getElementById('cartPanel').classList.remove('open');
+    alert('Please enter your delivery address.');
+    document.getElementById('customerAddress').focus();
+    return;
+  }
+
   const lines=cart.map(i=>`• ${i.qty} x ${i.name} (${i.size}) — ${money(i.price*i.qty)}`).join('\n');
 
   const message=`Hello Iramdam Biryani, I would like to order:
@@ -133,8 +155,10 @@ const customerAddress = document.getElementById('customerAddress');
 function updateAddressVisibility(){
   if(orderType.value === 'Delivery'){
     customerAddress.style.display = 'block';
+    customerAddress.required = true;
   }else{
     customerAddress.style.display = 'none';
+    customerAddress.required = false;
     customerAddress.value = '';
   }
 }
