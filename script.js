@@ -1,4 +1,49 @@
 const cart=[];
+const STORE_OPEN_MINUTES=10*60;
+const STORE_CLOSE_MINUTES=20*60;
+
+function indiaMinutesNow(){
+  const parts=new Intl.DateTimeFormat('en-GB',{
+    timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(new Date());
+  const hour=Number(parts.find(part=>part.type==='hour').value);
+  const minute=Number(parts.find(part=>part.type==='minute').value);
+  return hour*60+minute;
+}
+
+function isStoreOpen(){
+  const now=indiaMinutesNow();
+  return now>=STORE_OPEN_MINUTES&&now<STORE_CLOSE_MINUTES;
+}
+
+function closedMessage(){
+  return 'Iramdam Biryani is currently closed. Ordering is available daily from 10:00 AM to 8:00 PM. Advance orders are not accepted.';
+}
+
+function updateStoreStatus(){
+  const open=isStoreOpen();
+  const status=document.getElementById('storeStatus');
+  status.textContent=open?'🟢 Open now — closes at 8:00 PM':'🔴 Store closed — opens at 10:00 AM';
+  status.classList.toggle('open',open);
+  status.classList.toggle('closed',!open);
+
+  document.querySelectorAll('.add,.qtybox button').forEach(button=>button.disabled=!open);
+  document.getElementById('openCart').disabled=!open;
+  document.getElementById('sendWhatsApp').disabled=!open;
+  document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
+    link.classList.toggle('store-closed-link',!open);
+    link.setAttribute('aria-disabled',String(!open));
+  });
+}
+
+document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
+  link.addEventListener('click',event=>{
+    if(!isStoreOpen()){
+      event.preventDefault();
+      alert(closedMessage());
+    }
+  });
+});
 
 function money(n){return `₹${n}`}
 
@@ -38,6 +83,10 @@ document.querySelectorAll('.card').forEach(card=>{
   card.querySelector('.plus').onclick=()=>qty.textContent=+qty.textContent+1;
 
   card.querySelector('.add').onclick=()=>{
+    if(!isStoreOpen()){
+      alert(closedMessage());
+      return;
+    }
     const selected=size.options[size.selectedIndex];
     cart.push({
       name:card.dataset.item,
@@ -53,6 +102,10 @@ document.querySelectorAll('.card').forEach(card=>{
 });
 
 document.getElementById('openCart').onclick=()=>{
+  if(!isStoreOpen()){
+    alert(closedMessage());
+    return;
+  }
   render();
   document.getElementById('cartPanel').classList.add('open');
 };
@@ -120,6 +173,10 @@ document.getElementById('shareLocation').onclick=()=>{
   );
 };
 document.getElementById('sendWhatsApp').onclick=()=>{
+  if(!isStoreOpen()){
+    alert(closedMessage());
+    return;
+  }
   if(!cart.length){
     alert('Please add at least one item to your order.');
     return;
@@ -203,3 +260,5 @@ function updateAddressVisibility(){
 
 orderType.addEventListener('change', updateAddressVisibility);
 updateAddressVisibility();
+updateStoreStatus();
+setInterval(updateStoreStatus,30000);
