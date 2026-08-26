@@ -15,6 +15,7 @@
 @media(max-width:700px){.announcement{height:142px}.announcement-track{animation-duration:30s}.food-slide img{height:136px}.biryani-slide{width:254px}.pork-curry-slide{width:224px}.pork-curry-slide img{left:-254px}.mapum-slide{width:245px}.mapum-slide img{left:-471px}.pork-head-slide{width:237px}.pork-head-slide img{left:-701px}}
 
 .hero{padding:34px 18px}
+main{background:linear-gradient(180deg,#f0e5d8 0%,#e7d7c7 100%)}
 .hero-panel{position:relative;overflow:hidden;padding:46px 28px;border:1px solid #edcfaa;border-radius:24px;background:linear-gradient(135deg,#fffaf3 0%,#ffead0 100%);box-shadow:0 18px 45px rgba(90,42,10,.11)}
 .hero-panel::before,.hero-panel::after{content:"";position:absolute;border-radius:50%;background:rgba(230,126,0,.09);pointer-events:none}
 .hero-panel::before{width:220px;height:220px;right:-85px;top:-100px}
