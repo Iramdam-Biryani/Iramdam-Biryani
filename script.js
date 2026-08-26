@@ -66,7 +66,23 @@ document.getElementById('clearCart').onclick=()=>{
   render();
 };
 
+const STORE_LAT=24.817522;
+const STORE_LNG=93.925204;
+const MAX_DELIVERY_DISTANCE_KM=10;
+
 let customerLocation='';
+let customerDistanceKm=null;
+
+function distanceInKm(lat1,lng1,lat2,lng2){
+  const earthRadiusKm=6371;
+  const toRadians=degrees=>degrees*Math.PI/180;
+  const latitudeDifference=toRadians(lat2-lat1);
+  const longitudeDifference=toRadians(lng2-lng1);
+  const a=Math.sin(latitudeDifference/2)**2+
+    Math.cos(toRadians(lat1))*Math.cos(toRadians(lat2))*
+    Math.sin(longitudeDifference/2)**2;
+  return earthRadiusKm*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
 
 document.getElementById('shareLocation').onclick=()=>{
   const status=document.getElementById('locationStatus');
@@ -84,10 +100,17 @@ document.getElementById('shareLocation').onclick=()=>{
       const lng=position.coords.longitude;
 
       customerLocation=`https://www.google.com/maps?q=${lat},${lng}`;
+      customerDistanceKm=distanceInKm(STORE_LAT,STORE_LNG,lat,lng);
 
-      status.textContent='✅ Location added successfully';
+      if(customerDistanceKm<=MAX_DELIVERY_DISTANCE_KM){
+        status.textContent=`✅ Location accepted — ${customerDistanceKm.toFixed(1)} km from the store`;
+      }else{
+        status.textContent=`❌ ${customerDistanceKm.toFixed(1)} km from the store — outside our 10 km delivery area`;
+      }
     },
     ()=>{
+      customerLocation='';
+      customerDistanceKm=null;
       status.textContent='Unable to get location. Please allow location permission.';
     },
     {
@@ -130,6 +153,20 @@ document.getElementById('sendWhatsApp').onclick=()=>{
     return;
   }
 
+  if(type==='Delivery'&&customerDistanceKm===null){
+    document.getElementById('cartPanel').classList.remove('open');
+    alert('Please tap Share My Location. Location is required for delivery orders.');
+    document.getElementById('shareLocation').focus();
+    return;
+  }
+
+  if(type==='Delivery'&&customerDistanceKm>MAX_DELIVERY_DISTANCE_KM){
+    document.getElementById('cartPanel').classList.remove('open');
+    alert(`Sorry, delivery is available only within 10 km of Iramdam Biryani. Your location is ${customerDistanceKm.toFixed(1)} km away.`);
+    document.getElementById('shareLocation').focus();
+    return;
+  }
+
   const lines=cart.map(i=>`• ${i.qty} x ${i.name} (${i.size}) — ${money(i.price*i.qty)}`).join('\n');
 
   const message=`Hello Iramdam Biryani, I would like to order:
@@ -144,6 +181,7 @@ Order type: ${type}
 Address: ${address||(type==='Pickup'?'Pickup from shop':'Not provided')} 
 Special instructions: ${instructions||'None'}
 Location:${customerLocation || 'Not shared'}
+Distance from store: ${customerDistanceKm===null?'Not checked':`${customerDistanceKm.toFixed(1)} km`}
 
 Please confirm my order.`;
 
