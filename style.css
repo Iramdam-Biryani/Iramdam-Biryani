@@ -13,3 +13,19 @@
 @keyframes announcementMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 @media(max-width:700px){.announcement{height:142px}.announcement-track{animation-duration:30s}.food-slide img{height:136px}.biryani-slide{width:254px}.pork-curry-slide{width:224px}.pork-curry-slide img{left:-254px}.mapum-slide{width:245px}.mapum-slide img{left:-471px}.pork-head-slide{width:237px}.pork-head-slide img{left:-701px}}
+
+.hero{padding:34px 18px}
+.hero-panel{position:relative;overflow:hidden;padding:46px 28px;border:1px solid #edcfaa;border-radius:24px;background:linear-gradient(135deg,#fffaf3 0%,#ffead0 100%);box-shadow:0 18px 45px rgba(90,42,10,.11)}
+.hero-panel::before,.hero-panel::after{content:"";position:absolute;border-radius:50%;background:rgba(230,126,0,.09);pointer-events:none}
+.hero-panel::before{width:220px;height:220px;right:-85px;top:-100px}
+.hero-panel::after{width:120px;height:120px;left:-48px;bottom:-62px}
+.hero-eyebrow{position:relative;margin:0 0 12px;color:#a04408;font-size:.82rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.hero-panel h2{position:relative;margin:0;color:#431c08;font-size:clamp(2rem,5vw,3.4rem);line-height:1.04;letter-spacing:-.035em}
+.hero-copy{position:relative;max-width:650px;margin:18px auto 22px;color:#604a3e;font-size:1.06rem;line-height:1.65}
+.hero-features{position:relative;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.hero-features span{padding:9px 13px;border:1px solid #eccca7;border-radius:999px;background:rgba(255,255,255,.8);color:#6f3a17;font-size:.88rem;font-weight:700}
+.hero-features span::before{content:"✓";margin-right:6px;color:#17924b;font-weight:900}
+.order-button{position:relative;min-width:205px;padding:14px 20px;background:linear-gradient(135deg,#d96800,#ef9200);box-shadow:0 10px 22px rgba(198,91,0,.25);font-size:1rem;transition:transform .2s ease,box-shadow .2s ease}
+.order-button:hover{transform:translateY(-2px);box-shadow:0 13px 26px rgba(198,91,0,.3)}
+.cart-badge{display:inline-grid;place-items:center;min-width:28px;height:28px;margin-left:8px;padding:0 8px;border-radius:999px;background:#fff;color:#9b3e00}
+@media(max-width:700px){.hero{padding:24px 14px}.hero-panel{padding:34px 18px;border-radius:20px}.hero-copy{font-size:.98rem}.hero-features{gap:8px}.hero-features span{font-size:.79rem;padding:8px 10px}.order-button{width:100%}}
