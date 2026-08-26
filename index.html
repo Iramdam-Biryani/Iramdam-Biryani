@@ -170,7 +170,11 @@
   <aside class="drawer">
     <div class="carthead"><h2>Order Summary</h2><button id="closeCart">×</button></div>
     <div id="cartItems"><p>Your order is empty.</p></div>
-    <div class="total"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+    <div class="price-breakdown">
+      <div><span>Food subtotal</span><strong id="cartSubtotal">₹0</strong></div>
+      <div><span>Delivery charge</span><strong id="deliveryFee">₹0</strong></div>
+      <div class="total"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+    </div>
     <button id="clearCart" class="btn outline full">Clear Order</button>
     <button id="sendWhatsApp" class="btn whatsapp full">Send Order on WhatsApp</button>
   </aside>

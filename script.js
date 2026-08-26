@@ -51,8 +51,21 @@ function updateCount(){
   document.getElementById('cartCount').textContent=cart.reduce((s,i)=>s+i.qty,0);
 }
 
-function total(){
+function foodSubtotal(){
   return cart.reduce((s,i)=>s+i.price*i.qty,0);
+}
+
+function deliveryCharge(){
+  const type=document.getElementById('orderType').value;
+  if(type!=='Delivery') return 0;
+  if(customerDistanceKm===null||customerDistanceKm>MAX_DELIVERY_DISTANCE_KM) return null;
+  if(customerDistanceKm<=3) return 30;
+  if(customerDistanceKm<=6) return 50;
+  return 70;
+}
+
+function total(){
+  return foodSubtotal()+(deliveryCharge()||0);
 }
 
 function render(){
@@ -66,6 +79,12 @@ function render(){
         <div><strong>${money(i.price*i.qty)}</strong><br><button onclick="removeItem(${idx})">Remove</button></div>
       </div>`).join('');
   }
+  const fee=deliveryCharge();
+  const isDelivery=document.getElementById('orderType').value==='Delivery';
+  document.getElementById('cartSubtotal').textContent=money(foodSubtotal());
+  document.getElementById('deliveryFee').textContent=!isDelivery?money(0):
+    customerDistanceKm>MAX_DELIVERY_DISTANCE_KM?'Unavailable':
+    fee===null?'Share location':money(fee);
   document.getElementById('cartTotal').textContent=money(total());
 }
 
@@ -160,11 +179,13 @@ document.getElementById('shareLocation').onclick=()=>{
       }else{
         status.textContent=`❌ ${customerDistanceKm.toFixed(1)} km from the store — outside our 10 km delivery area`;
       }
+      render();
     },
     ()=>{
       customerLocation='';
       customerDistanceKm=null;
       status.textContent='Unable to get location. Please allow location permission.';
+      render();
     },
     {
       enableHighAccuracy:true,
@@ -230,6 +251,8 @@ document.getElementById('sendWhatsApp').onclick=()=>{
 
 ${lines}
 
+Food subtotal: ${money(foodSubtotal())}
+Delivery charge: ${money(deliveryCharge()||0)}
 Total: ${money(total())}
 
 Customer: ${name||'Not provided'}
@@ -256,6 +279,7 @@ function updateAddressVisibility(){
     customerAddress.required = false;
     customerAddress.value = '';
   }
+  render();
 }
 
 orderType.addEventListener('change', updateAddressVisibility);
