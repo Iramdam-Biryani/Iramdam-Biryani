@@ -160,6 +160,7 @@ const MAX_DELIVERY_DISTANCE_KM=10;
 
 let customerLocation='';
 let customerDistanceKm=null;
+let pendingWhatsAppUrl='';
 
 function distanceInKm(lat1,lng1,lat2,lng2){
   const earthRadiusKm=6371;
@@ -284,8 +285,42 @@ Distance from store: ${customerDistanceKm===null?'Not checked':`${customerDistan
 
 Please confirm my order.`;
 
-  window.open(`https://wa.me/917005018537?text=${encodeURIComponent(message)}`,'_blank');
-};  
+  pendingWhatsAppUrl=`https://wa.me/917005018537?text=${encodeURIComponent(message)}`;
+  document.getElementById('confirmItems').textContent=cart.map(i=>`${i.qty} × ${i.name} (${i.size}) — ${money(i.price*i.qty)}`).join('\n');
+  document.getElementById('confirmSubtotal').textContent=money(foodSubtotal());
+  document.getElementById('confirmDelivery').textContent=money(deliveryCharge()||0);
+  document.getElementById('confirmTotal').textContent=money(total());
+  document.getElementById('confirmCustomer').textContent=`${name} • ${phone}`;
+  document.getElementById('confirmOrderType').textContent=type;
+  document.getElementById('confirmPayment').textContent=paymentMethod;
+  document.getElementById('confirmAddress').textContent=address||(type==='Pickup'?'Pickup from shop':'Not provided');
+  document.getElementById('confirmDistance').textContent=customerDistanceKm===null?'Not required':`${customerDistanceKm.toFixed(1)} km`;
+  document.getElementById('cartPanel').classList.remove('open');
+  const confirmationPanel=document.getElementById('confirmationPanel');
+  confirmationPanel.classList.add('open');
+  confirmationPanel.setAttribute('aria-hidden','false');
+};
+
+function closeConfirmation(reopenCart=false){
+  const confirmationPanel=document.getElementById('confirmationPanel');
+  confirmationPanel.classList.remove('open');
+  confirmationPanel.setAttribute('aria-hidden','true');
+  if(reopenCart) document.getElementById('cartPanel').classList.add('open');
+}
+
+document.getElementById('editOrder').onclick=()=>closeConfirmation(true);
+document.getElementById('closeConfirmation').onclick=()=>closeConfirmation(true);
+document.querySelector('.confirmation-backdrop').onclick=()=>closeConfirmation(true);
+document.getElementById('confirmWhatsApp').onclick=()=>{
+  if(!isStoreOpen()){
+    closeConfirmation(false);
+    alert(closedMessage());
+    return;
+  }
+  if(!pendingWhatsAppUrl) return;
+  window.open(pendingWhatsAppUrl,'_blank');
+  closeConfirmation(false);
+};
 const orderType = document.getElementById('orderType');
 const customerAddress = document.getElementById('customerAddress');
 

@@ -191,6 +191,31 @@
     <button id="sendWhatsApp" class="btn whatsapp full">Send Order on WhatsApp</button>
   </aside>
 </div>
+<div id="confirmationPanel" class="confirmation" aria-hidden="true">
+  <div class="confirmation-backdrop"></div>
+  <section class="confirmation-card" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle">
+    <div class="confirmation-head"><div><span>Final check</span><h2 id="confirmationTitle">Confirm Your Order</h2></div><button type="button" id="closeConfirmation" aria-label="Close confirmation">×</button></div>
+    <p class="confirmation-note">Please check everything carefully before sending your order.</p>
+    <div id="confirmItems" class="confirm-items"></div>
+    <div class="confirm-totals">
+      <div><span>Food subtotal</span><strong id="confirmSubtotal"></strong></div>
+      <div><span>Delivery charge</span><strong id="confirmDelivery"></strong></div>
+      <div class="confirm-grand-total"><span>Final total</span><strong id="confirmTotal"></strong></div>
+    </div>
+    <div class="confirm-customer">
+      <div><span>Customer</span><strong id="confirmCustomer"></strong></div>
+      <div><span>Order type</span><strong id="confirmOrderType"></strong></div>
+      <div><span>Payment</span><strong id="confirmPayment"></strong></div>
+      <div><span>Address</span><strong id="confirmAddress"></strong></div>
+      <div><span>Distance</span><strong id="confirmDistance"></strong></div>
+    </div>
+    <div class="confirmation-actions">
+      <button type="button" id="editOrder" class="btn outline">Go Back & Edit</button>
+      <button type="button" id="confirmWhatsApp" class="btn whatsapp">Confirm & Send on WhatsApp</button>
+    </div>
+    <small class="confirmation-help">Your order is completed only after Iramdam Biryani confirms it on WhatsApp.</small>
+  </section>
+</div>
 <section class="site-info" aria-label="About Iramdam Biryani">
   <div class="info-wrap">
     <div class="info-intro">

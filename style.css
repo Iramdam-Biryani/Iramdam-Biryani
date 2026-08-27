@@ -72,3 +72,13 @@ main{background:linear-gradient(180deg,#f0e5d8 0%,#e7d7c7 100%)}
 .upi-payment-box{margin-top:12px;padding:15px;border-radius:12px;background:#eefaf3;color:#174d2d;text-align:center}
 .upi-payment-box[hidden]{display:none}.upi-payment-box>span,.upi-payment-box>strong,.upi-payment-box>small{display:block}.upi-payment-box>strong{margin:5px 0 12px;overflow-wrap:anywhere}.upi-payment-box>small{margin-top:11px;color:#477058;line-height:1.45}
 .upi-button{width:100%;background:#5f259f;color:#fff}
+
+.confirmation{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:18px}
+.confirmation.open{display:flex}.confirmation-backdrop{position:absolute;inset:0;background:rgba(24,10,4,.68);backdrop-filter:blur(3px)}
+.confirmation-card{position:relative;width:min(540px,100%);max-height:92vh;overflow:auto;padding:24px;border-radius:20px;background:#fffaf4;box-shadow:0 24px 70px rgba(0,0,0,.38)}
+.confirmation-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.confirmation-head span{color:#a04408;font-size:.75rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.confirmation-head h2{margin:5px 0 0;color:#431c08}.confirmation-head button{width:38px;height:38px;border:0;border-radius:50%;background:#f1e2d5;color:#5e2a0c;font-size:1.45rem}
+.confirmation-note{margin:14px 0;color:#6e625b;line-height:1.45}.confirm-items{padding:14px;border:1px solid #ead7c2;border-radius:12px;background:#fff;white-space:pre-line;color:#3f2b20;font-weight:700;line-height:1.65}
+.confirm-totals{margin:14px 0;padding:12px 14px;border-radius:12px;background:#fff1de}.confirm-totals>div,.confirm-customer>div{display:flex;justify-content:space-between;gap:18px;padding:7px 0}.confirm-grand-total{margin-top:5px;padding-top:13px!important;border-top:1px solid #dfc19c;color:#7a2e00;font-size:1.14rem}
+.confirm-customer{padding:7px 14px;border:1px solid #ead7c2;border-radius:12px;background:#fff}.confirm-customer span{flex:0 0 100px;color:#76665d}.confirm-customer strong{text-align:right;overflow-wrap:anywhere}
+.confirmation-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:10px;margin-top:16px}.confirmation-actions .btn{width:100%}.confirmation-help{display:block;margin-top:12px;color:#786960;line-height:1.45;text-align:center}
+@media(max-width:520px){.confirmation-card{padding:19px 16px;border-radius:17px}.confirmation-actions{grid-template-columns:1fr}.confirm-customer>div{display:block}.confirm-customer strong{display:block;margin-top:3px;text-align:left}.confirmation-help{font-size:.76rem}}
