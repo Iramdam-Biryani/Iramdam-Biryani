@@ -321,6 +321,80 @@ document.getElementById('confirmWhatsApp').onclick=()=>{
   window.open(pendingWhatsAppUrl,'_blank');
   closeConfirmation(false);
 };
+
+const photoViewer=document.getElementById('photoViewer');
+const largeFoodPhoto=document.getElementById('largeFoodPhoto');
+let viewerPhotos=[];
+let viewerIndex=0;
+let viewerDishName='';
+let touchStartX=0;
+
+function renderPhotoViewer(){
+  const photo=viewerPhotos[viewerIndex];
+  largeFoodPhoto.src=photo.src;
+  largeFoodPhoto.alt=photo.alt;
+  document.getElementById('photoDishName').textContent=viewerDishName;
+  document.getElementById('photoCounter').textContent=`Photo ${viewerIndex+1} of ${viewerPhotos.length}`;
+  const dots=document.getElementById('photoDots');
+  dots.replaceChildren(...viewerPhotos.map((_,index)=>{
+    const dot=document.createElement('button');
+    dot.type='button';
+    dot.className=index===viewerIndex?'active':'';
+    dot.setAttribute('aria-label',`View photo ${index+1}`);
+    dot.onclick=()=>{viewerIndex=index;renderPhotoViewer();};
+    return dot;
+  }));
+}
+
+function openPhotoViewer(card,startIndex){
+  viewerPhotos=[...card.querySelectorAll('.food-photo img,.secondary-gallery img')].map(image=>({src:image.src,alt:image.alt}));
+  viewerDishName=card.dataset.item;
+  viewerIndex=startIndex;
+  renderPhotoViewer();
+  photoViewer.classList.add('open');
+  photoViewer.setAttribute('aria-hidden','false');
+  document.body.classList.add('photo-viewer-open');
+  document.getElementById('closePhotoViewer').focus();
+}
+
+function closePhotoViewer(){
+  photoViewer.classList.remove('open');
+  photoViewer.setAttribute('aria-hidden','true');
+  document.body.classList.remove('photo-viewer-open');
+}
+
+function changePhoto(direction){
+  viewerIndex=(viewerIndex+direction+viewerPhotos.length)%viewerPhotos.length;
+  renderPhotoViewer();
+}
+
+document.querySelectorAll('.card').forEach(card=>{
+  card.querySelectorAll('.food-photo img,.secondary-gallery img').forEach((image,index)=>{
+    image.tabIndex=0;
+    image.setAttribute('role','button');
+    image.setAttribute('aria-label',`${image.alt}. Open larger photo`);
+    image.onclick=()=>openPhotoViewer(card,index);
+    image.onkeydown=event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();openPhotoViewer(card,index);}
+    };
+  });
+});
+
+document.getElementById('closePhotoViewer').onclick=closePhotoViewer;
+document.querySelector('.photo-viewer-backdrop').onclick=closePhotoViewer;
+document.getElementById('previousPhoto').onclick=()=>changePhoto(-1);
+document.getElementById('nextPhoto').onclick=()=>changePhoto(1);
+largeFoodPhoto.addEventListener('touchstart',event=>{touchStartX=event.changedTouches[0].clientX;},{passive:true});
+largeFoodPhoto.addEventListener('touchend',event=>{
+  const distance=event.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(distance)>45) changePhoto(distance<0?1:-1);
+},{passive:true});
+document.addEventListener('keydown',event=>{
+  if(!photoViewer.classList.contains('open')) return;
+  if(event.key==='Escape') closePhotoViewer();
+  if(event.key==='ArrowLeft') changePhoto(-1);
+  if(event.key==='ArrowRight') changePhoto(1);
+});
 const orderType = document.getElementById('orderType');
 const customerAddress = document.getElementById('customerAddress');
 

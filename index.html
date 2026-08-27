@@ -216,6 +216,19 @@
     <small class="confirmation-help">Your order is completed only after Iramdam Biryani confirms it on WhatsApp.</small>
   </section>
 </div>
+<div id="photoViewer" class="photo-viewer" aria-hidden="true">
+  <div class="photo-viewer-backdrop"></div>
+  <div class="photo-viewer-shell" role="dialog" aria-modal="true" aria-label="Food photo gallery">
+    <button type="button" id="closePhotoViewer" class="photo-close" aria-label="Close photo gallery">×</button>
+    <button type="button" id="previousPhoto" class="photo-nav photo-previous" aria-label="Previous photo">‹</button>
+    <figure class="photo-stage">
+      <img id="largeFoodPhoto" src="" alt="">
+      <figcaption><strong id="photoDishName"></strong><span id="photoCounter"></span></figcaption>
+      <div id="photoDots" class="photo-dots" aria-label="Choose photo"></div>
+    </figure>
+    <button type="button" id="nextPhoto" class="photo-nav photo-next" aria-label="Next photo">›</button>
+  </div>
+</div>
 <section class="site-info" aria-label="About Iramdam Biryani">
   <div class="info-wrap">
     <div class="info-intro">
