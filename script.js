@@ -1,6 +1,7 @@
 const cart=[];
 const STORE_OPEN_MINUTES=10*60;
 const STORE_CLOSE_MINUTES=20*60;
+const UPI_ID='allthetimemotivation@okhdfcbank';
 
 function indiaMinutesNow(){
   const parts=new Intl.DateTimeFormat('en-GB',{
@@ -68,6 +69,20 @@ function total(){
   return foodSubtotal()+(deliveryCharge()||0);
 }
 
+function selectedPaymentMethod(){
+  return document.querySelector('input[name="paymentMethod"]:checked').value;
+}
+
+function updatePaymentChoice(){
+  const method=selectedPaymentMethod();
+  const isUpi=method==='UPI Payment';
+  const upiBox=document.getElementById('upiPaymentBox');
+  const payUpi=document.getElementById('payUpi');
+  upiBox.hidden=!isUpi;
+  payUpi.href=`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent('Iramdam Biryani')}&am=${total().toFixed(2)}&cu=INR&tn=${encodeURIComponent('Food order from Iramdam Biryani')}`;
+  document.getElementById('paymentSummary').textContent=isUpi?'UPI Payment':'Cash';
+}
+
 function render(){
   const box=document.getElementById('cartItems');
   if(!cart.length){
@@ -86,6 +101,7 @@ function render(){
     customerDistanceKm>MAX_DELIVERY_DISTANCE_KM?'Unavailable':
     fee===null?'Share location':money(fee);
   document.getElementById('cartTotal').textContent=money(total());
+  updatePaymentChoice();
 }
 
 function removeItem(index){
@@ -208,6 +224,7 @@ document.getElementById('sendWhatsApp').onclick=()=>{
   const type=document.getElementById('orderType').value;
   const address=document.getElementById('customerAddress').value.trim();
   const instructions=document.getElementById('orderInstructions').value.trim();
+  const paymentMethod=selectedPaymentMethod();
 
   if(!name){
     document.getElementById('cartPanel').classList.remove('open');
@@ -254,6 +271,8 @@ ${lines}
 Food subtotal: ${money(foodSubtotal())}
 Delivery charge: ${money(deliveryCharge()||0)}
 Total: ${money(total())}
+Payment method: ${paymentMethod}
+${paymentMethod==='UPI Payment'?`UPI ID: ${UPI_ID}\nPayment verification: Please check and confirm`:''}
 
 Customer: ${name||'Not provided'}
 Phone: ${phone||'Not provided'}
@@ -283,6 +302,8 @@ function updateAddressVisibility(){
 }
 
 orderType.addEventListener('change', updateAddressVisibility);
+document.querySelectorAll('input[name="paymentMethod"]').forEach(option=>option.addEventListener('change',updatePaymentChoice));
 updateAddressVisibility();
+updatePaymentChoice();
 updateStoreStatus();
 setInterval(updateStoreStatus,30000);

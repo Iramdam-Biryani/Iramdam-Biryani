@@ -62,3 +62,13 @@ main{background:linear-gradient(180deg,#f0e5d8 0%,#e7d7c7 100%)}
 .floating-whatsapp:hover .floating-whatsapp-icon{transform:translateY(-2px) scale(1.04);background:#1fbd59}
 .floating-whatsapp:focus-visible{outline:3px solid #ffca65;outline-offset:4px;border-radius:30px}
 @media(max-width:700px){.floating-whatsapp{right:14px;bottom:14px}.floating-whatsapp-label{display:none}.floating-whatsapp-icon{width:56px;height:56px}}
+
+.payment-choice{margin:18px 0;padding:18px;border:1px solid #d9b992;border-radius:16px;background:rgba(255,255,255,.75)}
+.payment-choice legend{padding:0 7px;color:#431c08;font-size:1.05rem;font-weight:800}
+.payment-option{display:flex;align-items:flex-start;gap:11px;margin:10px 0;padding:13px;border:1px solid #ead7c2;border-radius:12px;background:#fff;cursor:pointer}
+.payment-option:has(input:checked){border-color:#e67e00;background:#fff7e9;box-shadow:0 0 0 2px rgba(230,126,0,.1)}
+.payment-option input{width:18px!important;height:18px;margin:2px 0 0!important;accent-color:#e67e00}
+.payment-option span{display:block}.payment-option strong,.payment-option small{display:block}.payment-option small{margin-top:4px;color:#6e625b;line-height:1.4}
+.upi-payment-box{margin-top:12px;padding:15px;border-radius:12px;background:#eefaf3;color:#174d2d;text-align:center}
+.upi-payment-box[hidden]{display:none}.upi-payment-box>span,.upi-payment-box>strong,.upi-payment-box>small{display:block}.upi-payment-box>strong{margin:5px 0 12px;overflow-wrap:anywhere}.upi-payment-box>small{margin-top:11px;color:#477058;line-height:1.45}
+.upi-button{width:100%;background:#5f259f;color:#fff}
