@@ -27,7 +27,15 @@ else{
 document.getElementById('loginForm').addEventListener('submit',async event=>{
   event.preventDefault();if(!configured) return;setStatus(loginStatus,'Signing in…');
   try{await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value.trim(),document.getElementById('loginPassword').value);}
-  catch(error){setStatus(loginStatus,error.code==='auth/invalid-credential'?'Incorrect email or password.':'Unable to sign in. Please try again.','error');}
+  catch(error){
+    const messages={
+      'auth/invalid-credential':'Incorrect email or password.',
+      'auth/wrong-password':'Incorrect email or password.',
+      'auth/unauthorized-domain':'This website domain is not authorised in Firebase.',
+      'auth/api-key-not-valid':'The Firebase connection key is invalid.'
+    };
+    setStatus(loginStatus,messages[error.code]||`Unable to sign in (${error.code||'connection error'}).`,'error');
+  }
 });
 document.getElementById('resetPassword').onclick=async()=>{
   if(!configured) return;

@@ -1,5 +1,5 @@
 window.IRAMDAM_FIREBASE_CONFIG={
-  apiKey:"AIzaSyC_6BmmtwGWXETMM6PMVam0NHC5oDvuxIk",
+  apiKey:"AIzaSyC_6BmnWtGWXETMM6PMVam0NHC5oDvuxIk",
   authDomain:"iramdam-biryani-dashboard.firebaseapp.com",
   projectId:"iramdam-biryani-dashboard",
   storageBucket:"iramdam-biryani-dashboard.firebasestorage.app",
