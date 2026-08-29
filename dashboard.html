@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Iramdam Biryani | Store Dashboard</title>
 <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="dashboard-menu.css?v=20260829-3">
 </head>
 <body>
 <main class="dashboard-shell">
@@ -31,6 +32,7 @@
         <section class="panel"><div class="panel-title"><span>03</span><div><h2>Announcement Banner</h2><p>Publish an important message above the menu.</p></div></div>
           <label class="toggle-row"><input id="announcementVisible" type="checkbox" checked><span>Show announcement banner</span></label><label>Announcement message<input id="announcementText" maxlength="140" placeholder="Example: Family Pack available today — order before 7 PM"></label><label>Banner speed <span id="speedValue">34 seconds</span><input id="announcementSpeed" type="range" min="10" max="60" value="34"></label>
         </section>
+        <section class="panel"><div class="panel-title"><span>04</span><div><h2>Menu Prices & Descriptions</h2><p>Edit each food description and size price. New prices automatically update the cart, confirmation and WhatsApp order.</p></div></div><div id="menuEditor" class="menu-editor"></div></section>
         <div class="save-bar"><p id="saveStatus" class="status" aria-live="polite">Changes are not published until you tap Save.</p><button id="saveButton" class="primary-action" type="submit">Save & Publish Changes</button></div>
       </form>
 
@@ -41,7 +43,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=20260829-2"></script>
-<script src="dashboard.js?v=20260829-2"></script>
+<script src="firebase-config.js?v=20260829-3"></script>
+<script src="dashboard.js?v=20260829-3"></script>
 </body>
 </html>

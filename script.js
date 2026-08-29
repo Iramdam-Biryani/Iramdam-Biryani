@@ -69,6 +69,18 @@ window.applyLiveStoreSettings=settings=>{
   updateStoreStatus();
 };
 
+window.applyLiveMenu=items=>{
+  Object.values(items).forEach(item=>{
+    const card=[...document.querySelectorAll('.card')].find(element=>element.dataset.item===item.name);
+    if(!card) return;
+    if(item.description) card.querySelector('.food-description').textContent=item.description;
+    card.querySelectorAll('.size-select option').forEach(option=>{
+      const price=Number(item.prices&&item.prices[option.value]);
+      if(Number.isFinite(price)&&price>=0){option.dataset.price=String(price);option.textContent=`${option.value} — ₹${price}`;}
+    });
+  });
+};
+
 document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
   link.addEventListener('click',event=>{
     if(!isStoreOpen()){

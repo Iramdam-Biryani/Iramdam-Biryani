@@ -12,6 +12,9 @@
     firebase.firestore().collection('storeAssets').doc('header').onSnapshot(snapshot=>{
       if(snapshot.exists&&window.applyLiveStoreSettings) window.applyLiveStoreSettings({headerImageUrl:snapshot.data().dataUrl});
     });
+    firebase.firestore().collection('store').doc('menu').onSnapshot(snapshot=>{
+      if(snapshot.exists&&window.applyLiveMenu) window.applyLiveMenu(snapshot.data().items||{});
+    });
   }catch(error){
     console.warn('Firebase setup incomplete:',error.message);
   }

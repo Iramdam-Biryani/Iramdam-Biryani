@@ -6,6 +6,15 @@ const adminView=document.getElementById('adminView');
 const loginStatus=document.getElementById('loginStatus');
 const saveStatus=document.getElementById('saveStatus');
 let auth,db,currentSettings={};
+const DEFAULT_MENU={
+  chickenBiryani:{name:'Chicken Biryani',description:'Description will be added soon.',prices:{Small:170,Large:350,'Family Pack':950}},
+  porkCurry:{name:'Pork Curry',description:'Description will be added soon.',prices:{Small:170,Large:360}},
+  broilerMapum:{name:'Chicken Broiler Mapum Thongba',description:'Description will be added soon.',prices:{Small:550,Large:900}},
+  ngaheiMapum:{name:'Ngahei Mapum Thongba',description:'Description will be added soon.',prices:{Small:450,Large:750}},
+  koilerMapum:{name:'Chicken Koiler Mapum Thongba',description:'Description will be added soon.',prices:{Full:1100}},
+  porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300}}
+};
+let currentMenu=JSON.parse(JSON.stringify(DEFAULT_MENU));
 
 function setStatus(element,message,type=''){
   element.textContent=message;element.className=`status ${type}`;
@@ -13,6 +22,33 @@ function setStatus(element,message,type=''){
 function timeToMinutes(time){const [hours,minutes]=time.split(':').map(Number);return hours*60+minutes;}
 function minutesToTime(minutes){return `${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;}
 function formatTime(time){const [h,m]=time.split(':').map(Number);return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;}
+
+function renderMenuEditor(){
+  const editor=document.getElementById('menuEditor');
+  editor.replaceChildren(...Object.entries(currentMenu).map(([key,item])=>{
+    const card=document.createElement('article');card.className='menu-edit-card';card.dataset.menuKey=key;
+    const title=document.createElement('h3');title.textContent=item.name;card.appendChild(title);
+    const descriptionLabel=document.createElement('label');descriptionLabel.textContent='Food description';
+    const description=document.createElement('textarea');description.rows=3;description.maxLength=260;description.className='menu-description';description.value=item.description||'';descriptionLabel.appendChild(description);card.appendChild(descriptionLabel);
+    const priceGrid=document.createElement('div');priceGrid.className='menu-price-grid';
+    Object.entries(item.prices).forEach(([size,price])=>{
+      const label=document.createElement('label');label.textContent=`${size} price (₹)`;
+      const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.required=true;input.className='menu-price';input.dataset.size=size;input.value=price;label.appendChild(input);priceGrid.appendChild(label);
+    });
+    card.appendChild(priceGrid);return card;
+  }));
+}
+
+function readMenuEditor(){
+  const menu={};
+  document.querySelectorAll('.menu-edit-card').forEach(card=>{
+    const key=card.dataset.menuKey,item=currentMenu[key];
+    const prices={};card.querySelectorAll('.menu-price').forEach(input=>prices[input.dataset.size]=Number(input.value));
+    menu[key]={name:item.name,description:card.querySelector('.menu-description').value.trim(),prices};
+  });
+  return menu;
+}
+renderMenuEditor();
 
 if(!configured){document.getElementById('setupNotice').hidden=false;setStatus(loginStatus,'Complete the one-time Firebase setup first.','error');document.querySelector('#loginForm button').disabled=true;}
 else{
@@ -45,8 +81,10 @@ document.getElementById('logoutButton').onclick=()=>auth.signOut();
 
 async function loadSettings(){
   setStatus(saveStatus,'Loading live settings…');
-  const snapshot=await db.collection('store').doc('settings').get();
+  const [snapshot,menuSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null)]);
   currentSettings=snapshot.exists?snapshot.data():{};
+  if(menuSnapshot&&menuSnapshot.exists) currentMenu={...currentMenu,...menuSnapshot.data().items};
+  renderMenuEditor();
   document.getElementById('openingTime').value=minutesToTime(currentSettings.openMinutes??600);
   document.getElementById('closingTime').value=minutesToTime(currentSettings.closeMinutes??1200);
   document.getElementById('statusMode').value=currentSettings.statusMode||'automatic';
@@ -80,10 +118,11 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const logoDataUrl=await compressImage(document.getElementById('logoFile').files[0],320,320,.82);
     const headerDataUrl=await compressImage(document.getElementById('headerFile').files[0],1400,800,.78);
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-    const writes=[db.collection('store').doc('settings').set(settings,{merge:true})];
+    const menu=readMenuEditor();
+    const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:menu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
-    await Promise.all(writes);currentSettings={...currentSettings,...settings};setStatus(saveStatus,'✓ Changes are now live for all customers.','success');
+    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
   }catch(error){setStatus(saveStatus,error.message||'Could not publish changes.','error');}finally{button.disabled=false;}
 });
 
