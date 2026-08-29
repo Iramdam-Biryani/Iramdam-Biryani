@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Iramdam Biryani | Store Dashboard</title>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<main class="dashboard-shell">
+  <section id="setupNotice" class="setup-notice" hidden><strong>One-time Firebase connection required</strong><p>Complete the included FIREBASE-SETUP instructions before using this dashboard.</p></section>
+  <section id="loginView" class="login-card">
+    <div class="brand-mark">IB</div><p class="eyebrow">Private management area</p><h1>Iramdam Biryani Dashboard</h1><p>Sign in using the authorised administrator account.</p>
+    <form id="loginForm"><label>Email<input id="loginEmail" type="email" value="asemajitkumarsingh@gmail.com" autocomplete="username" required></label><label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label><button class="primary-action" type="submit">Sign In</button></form>
+    <button id="resetPassword" class="text-button" type="button">Forgot password?</button><p id="loginStatus" class="status" aria-live="polite"></p>
+  </section>
+
+  <section id="adminView" hidden>
+    <header class="dashboard-header"><div><p class="eyebrow">Live store control</p><h1>Iramdam Biryani</h1><p id="adminIdentity"></p></div><div class="header-actions"><a href="index.html" target="_blank">View Website</a><button id="logoutButton" type="button">Sign Out</button></div></header>
+    <div class="dashboard-grid">
+      <form id="settingsForm" class="settings-column">
+        <section class="panel"><div class="panel-title"><span>01</span><div><h2>Store Status & Hours</h2><p>Control when customers can place orders.</p></div></div>
+          <div class="two-columns"><label>Opening time<input id="openingTime" type="time" value="10:00" required></label><label>Closing time<input id="closingTime" type="time" value="20:00" required></label></div>
+          <label>Status control<select id="statusMode"><option value="automatic">Automatic — follow opening hours</option><option value="force-open">Force Open — accept orders now</option><option value="force-closed">Force Closed — stop orders now</option></select></label>
+        </section>
+        <section class="panel"><div class="panel-title"><span>02</span><div><h2>Header & Store Identity</h2><p>Update the main information customers see first.</p></div></div>
+          <label>Store name<input id="dashboardStoreName" value="Iramdam Biryani" maxlength="60" required></label><label>Tagline<input id="dashboardTagline" value="Fresh • Local • Made with care" maxlength="100"></label><label>Address<input id="dashboardAddress" value="Lamphel, Opposite MSPDCL Office" maxlength="160"></label>
+          <div class="two-columns"><label>Store logo/icon<input id="logoFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Header background<input id="headerFile" type="file" accept="image/jpeg,image/png,image/webp"></label></div><small>Use JPG, PNG or WebP under 5 MB.</small>
+        </section>
+        <section class="panel"><div class="panel-title"><span>03</span><div><h2>Announcement Banner</h2><p>Publish an important message above the menu.</p></div></div>
+          <label class="toggle-row"><input id="announcementVisible" type="checkbox" checked><span>Show announcement banner</span></label><label>Announcement message<input id="announcementText" maxlength="140" placeholder="Example: Family Pack available today — order before 7 PM"></label><label>Banner speed <span id="speedValue">34 seconds</span><input id="announcementSpeed" type="range" min="10" max="60" value="34"></label>
+        </section>
+        <div class="save-bar"><p id="saveStatus" class="status" aria-live="polite">Changes are not published until you tap Save.</p><button id="saveButton" class="primary-action" type="submit">Save & Publish Changes</button></div>
+      </form>
+
+      <aside class="preview-column"><div class="preview-sticky"><p class="eyebrow">Live preview</p><div id="headerPreview" class="header-preview"><img id="logoPreview" hidden alt="Logo preview"><p id="taglinePreview">Fresh • Local • Made with care</p><h2 id="namePreview">Iramdam Biryani</h2><p id="addressPreview">Lamphel, Opposite MSPDCL Office</p><span id="hoursPreview">10:00 AM–8:00 PM</span></div><div id="announcementPreview" class="announcement-preview"><strong>Announcement</strong><p id="announcementTextPreview">Your announcement will appear here.</p></div><div class="security-note"><strong>Protected dashboard</strong><p>Only asemajitkumarsingh@gmail.com can save changes.</p></div></div></aside>
+    </div>
+  </section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

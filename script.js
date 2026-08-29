@@ -1,6 +1,7 @@
 const cart=[];
-const STORE_OPEN_MINUTES=10*60;
-const STORE_CLOSE_MINUTES=20*60;
+let STORE_OPEN_MINUTES=10*60;
+let STORE_CLOSE_MINUTES=20*60;
+let STORE_STATUS_MODE='automatic';
 const UPI_ID='allthetimemotivation@okhdfcbank';
 
 function indiaMinutesNow(){
@@ -13,18 +14,20 @@ function indiaMinutesNow(){
 }
 
 function isStoreOpen(){
+  if(STORE_STATUS_MODE==='force-open') return true;
+  if(STORE_STATUS_MODE==='force-closed') return false;
   const now=indiaMinutesNow();
   return now>=STORE_OPEN_MINUTES&&now<STORE_CLOSE_MINUTES;
 }
 
 function closedMessage(){
-  return 'Iramdam Biryani is currently closed. Ordering is available daily from 10:00 AM to 8:00 PM. Advance orders are not accepted.';
+  return `Iramdam Biryani is currently closed. Ordering is available daily from ${formatMinutes12(STORE_OPEN_MINUTES)} to ${formatMinutes12(STORE_CLOSE_MINUTES)}. Advance orders are not accepted.`;
 }
 
 function updateStoreStatus(){
   const open=isStoreOpen();
   const status=document.getElementById('storeStatus');
-  status.textContent=open?'🟢 Open now — closes at 8:00 PM':'🔴 Store closed — opens at 10:00 AM';
+  status.textContent=STORE_STATUS_MODE==='force-open'?'🟢 Open now — accepting orders':STORE_STATUS_MODE==='force-closed'?'🔴 Temporarily closed':open?`🟢 Open now — closes at ${formatMinutes12(STORE_CLOSE_MINUTES)}`:`🔴 Store closed — opens at ${formatMinutes12(STORE_OPEN_MINUTES)}`;
   status.classList.toggle('open',open);
   status.classList.toggle('closed',!open);
 
@@ -36,6 +39,35 @@ function updateStoreStatus(){
     link.setAttribute('aria-disabled',String(!open));
   });
 }
+
+function formatMinutes12(minutes){
+  const hour24=Math.floor(minutes/60)%24;
+  const minute=minutes%60;
+  const suffix=hour24>=12?'PM':'AM';
+  const hour=hour24%12||12;
+  return `${hour}:${String(minute).padStart(2,'0')} ${suffix}`;
+}
+
+window.applyLiveStoreSettings=settings=>{
+  if(Number.isFinite(settings.openMinutes)) STORE_OPEN_MINUTES=settings.openMinutes;
+  if(Number.isFinite(settings.closeMinutes)) STORE_CLOSE_MINUTES=settings.closeMinutes;
+  if(['automatic','force-open','force-closed'].includes(settings.statusMode)) STORE_STATUS_MODE=settings.statusMode;
+  document.getElementById('storeHours').textContent=`Open daily: ${formatMinutes12(STORE_OPEN_MINUTES)}–${formatMinutes12(STORE_CLOSE_MINUTES)}`;
+  document.getElementById('footerStoreHours').innerHTML=`Open daily from <strong>${formatMinutes12(STORE_OPEN_MINUTES)} to ${formatMinutes12(STORE_CLOSE_MINUTES)}</strong>.`;
+  if(settings.storeName) document.getElementById('storeName').textContent=settings.storeName;
+  if(settings.tagline) document.getElementById('storeTagline').textContent=settings.tagline;
+  if(settings.address) document.getElementById('storeAddress').textContent=settings.address;
+  if(settings.headerImageUrl) document.getElementById('storeHeader').style.backgroundImage=`linear-gradient(rgba(35,13,0,.58),rgba(35,13,0,.7)),url("${settings.headerImageUrl}")`;
+  const logo=document.getElementById('storeLogo');
+  if(settings.logoUrl){logo.src=settings.logoUrl;logo.hidden=false;}else{logo.hidden=true;}
+  const announcement=document.getElementById('announcementBanner');
+  announcement.hidden=settings.announcementVisible===false;
+  announcement.style.setProperty('--announcement-speed',`${Math.max(10,Number(settings.announcementSpeed)||34)}s`);
+  const message=document.getElementById('announcementMessage');
+  message.textContent=settings.announcementText||'';
+  message.hidden=!settings.announcementText;
+  updateStoreStatus();
+};
 
 document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
   link.addEventListener('click',event=>{
