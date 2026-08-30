@@ -350,7 +350,7 @@ Distance from store: ${customerDistanceKm===null?'Not checked':`${customerDistan
 
 Please confirm my order.`;
 
-  pendingWhatsAppUrl=`https://wa.me/917005018537?text=${encodeURIComponent(message)}`;
+  pendingWhatsAppUrl=`https://wa.me/919402855024?text=${encodeURIComponent(message)}`;
   document.getElementById('confirmItems').textContent=cart.map(i=>`${i.qty} × ${i.name} (${i.size}) — ${money(i.price*i.qty)}`).join('\n');
   document.getElementById('confirmSubtotal').textContent=money(foodSubtotal());
   document.getElementById('confirmDelivery').textContent=money(deliveryCharge()||0);
