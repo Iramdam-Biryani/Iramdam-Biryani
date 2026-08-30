@@ -81,6 +81,20 @@ window.applyLiveMenu=items=>{
   });
 };
 
+window.applyCustomMenuItem=(key,item)=>{
+  if(!item||!item.name) return;
+  let card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`);
+  if(!card){
+    card=document.createElement('article');card.className='card';card.dataset.menuKey=key;card.dataset.item=item.name;
+    card.innerHTML=`<div class="food food-photo"><img class="custom-food-image" alt=""></div><div class="pad"><h3></h3><p class="food-description"></p><select class="size-select"></select><div class="qtyrow"><span>Quantity</span><div class="qtybox"><button class="minus" type="button">−</button><span class="qty">1</span><button class="plus" type="button">+</button></div></div><button class="add" type="button">Add to Order</button></div>`;
+    document.getElementById('menuGrid').appendChild(card);bindOrderCard(card);bindPhotoCard(card);
+  }
+  card.dataset.item=item.name;card.querySelector('h3').textContent=item.name;card.querySelector('.food-description').textContent=item.description||'';
+  const image=card.querySelector('.food-photo img');image.src=item.imageDataUrl||'';image.alt=`${item.name} from Iramdam Biryani`;
+  const select=card.querySelector('.size-select');select.replaceChildren(...Object.entries(item.prices||{}).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;}));
+  updateStoreStatus();
+};
+
 document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
   link.addEventListener('click',event=>{
     if(!isStoreOpen()){
@@ -154,7 +168,8 @@ function removeItem(index){
   render();
 }
 
-document.querySelectorAll('.card').forEach(card=>{
+function bindOrderCard(card){
+  if(card.dataset.orderBound) return;card.dataset.orderBound='true';
   const qty=card.querySelector('.qty');
   const size=card.querySelector('.size-select');
 
@@ -178,7 +193,8 @@ document.querySelectorAll('.card').forEach(card=>{
     render();
     document.getElementById('cartPanel').classList.add('open');
   };
-});
+}
+document.querySelectorAll('.card').forEach(bindOrderCard);
 
 document.getElementById('openCart').onclick=()=>{
   if(!isStoreOpen()){
@@ -412,7 +428,8 @@ function changePhoto(direction){
   renderPhotoViewer();
 }
 
-document.querySelectorAll('.card').forEach(card=>{
+function bindPhotoCard(card){
+  if(card.dataset.photoBound) return;card.dataset.photoBound='true';
   card.querySelectorAll('.food-photo img,.secondary-gallery img').forEach((image,index)=>{
     image.tabIndex=0;
     image.setAttribute('role','button');
@@ -422,7 +439,8 @@ document.querySelectorAll('.card').forEach(card=>{
       if(event.key==='Enter'||event.key===' '){event.preventDefault();openPhotoViewer(card,index);}
     };
   });
-});
+}
+document.querySelectorAll('.card').forEach(bindPhotoCard);
 
 document.getElementById('closePhotoViewer').onclick=closePhotoViewer;
 document.querySelector('.photo-viewer-backdrop').onclick=closePhotoViewer;

@@ -15,6 +15,8 @@ const DEFAULT_MENU={
   porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300}}
 };
 let currentMenu=JSON.parse(JSON.stringify(DEFAULT_MENU));
+const BUILTIN_MENU_KEYS=new Set(Object.keys(DEFAULT_MENU));
+const pendingItemImages={};
 
 function setStatus(element,message,type=''){
   element.textContent=message;element.className=`status ${type}`;
@@ -27,6 +29,7 @@ function renderMenuEditor(){
   const editor=document.getElementById('menuEditor');
   editor.replaceChildren(...Object.entries(currentMenu).map(([key,item])=>{
     const card=document.createElement('article');card.className='menu-edit-card';card.dataset.menuKey=key;
+    if(item.custom){card.classList.add('custom-item');const badge=document.createElement('span');badge.className='custom-badge';badge.textContent='Custom item';card.appendChild(badge);}
     const title=document.createElement('h3');title.textContent=item.name;card.appendChild(title);
     const descriptionLabel=document.createElement('label');descriptionLabel.textContent='Food description';
     const description=document.createElement('textarea');description.rows=3;description.maxLength=260;description.className='menu-description';description.value=item.description||'';descriptionLabel.appendChild(description);card.appendChild(descriptionLabel);
@@ -44,7 +47,7 @@ function readMenuEditor(){
   document.querySelectorAll('.menu-edit-card').forEach(card=>{
     const key=card.dataset.menuKey,item=currentMenu[key];
     const prices={};card.querySelectorAll('.menu-price').forEach(input=>prices[input.dataset.size]=Number(input.value));
-    menu[key]={name:item.name,description:card.querySelector('.menu-description').value.trim(),prices};
+    menu[key]={...item,name:item.name,description:card.querySelector('.menu-description').value.trim(),prices};
   });
   return menu;
 }
@@ -81,9 +84,10 @@ document.getElementById('logoutButton').onclick=()=>auth.signOut();
 
 async function loadSettings(){
   setStatus(saveStatus,'Loading live settings…');
-  const [snapshot,menuSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null)]);
+  const [snapshot,menuSnapshot,customSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null)]);
   currentSettings=snapshot.exists?snapshot.data():{};
   if(menuSnapshot&&menuSnapshot.exists) currentMenu={...currentMenu,...menuSnapshot.data().items};
+  if(customSnapshot) customSnapshot.forEach(doc=>{const data=doc.data();currentMenu[data.key||doc.id.replace(/^menu_/, '')]={...data.item,custom:true,assetDocId:doc.id};});
   renderMenuEditor();
   document.getElementById('openingTime').value=minutesToTime(currentSettings.openMinutes??600);
   document.getElementById('closingTime').value=minutesToTime(currentSettings.closeMinutes??1200);
@@ -112,6 +116,26 @@ async function compressImage(file,maxWidth,maxHeight,quality){
   return dataUrl;
 }
 
+function resetNewItemForm(){
+  ['newItemName','newItemDescription','newItemSize','newItemPrice','newItemImage'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('newItemForm').hidden=true;setStatus(document.getElementById('newItemStatus'),'');
+}
+document.getElementById('showNewItemForm').onclick=()=>{document.getElementById('newItemForm').hidden=false;document.getElementById('newItemName').focus();};
+document.getElementById('cancelNewItem').onclick=resetNewItemForm;
+document.getElementById('addNewItem').onclick=async()=>{
+  const status=document.getElementById('newItemStatus');
+  const name=document.getElementById('newItemName').value.trim(),description=document.getElementById('newItemDescription').value.trim();
+  const size=document.getElementById('newItemSize').value.trim(),price=Number(document.getElementById('newItemPrice').value),file=document.getElementById('newItemImage').files[0];
+  if(!name||!description||!size||!Number.isFinite(price)||price<0||!file){setStatus(status,'Please enter the name, description, image, size and price.','error');return;}
+  if(Object.values(currentMenu).some(item=>item.name.toLowerCase()===name.toLowerCase())){setStatus(status,'A menu item with this name already exists.','error');return;}
+  try{
+    setStatus(status,'Preparing the new item…');
+    const key=`custom_${Date.now()}`;pendingItemImages[key]=await compressImage(file,900,700,.75);
+    currentMenu[key]={name,description,prices:{[size]:price},custom:true,assetDocId:`menu_${key}`};
+    renderMenuEditor();resetNewItemForm();setStatus(saveStatus,'New item prepared. Tap Save & Publish Changes to make it live.');
+  }catch(error){setStatus(status,error.message||'Could not prepare this item.','error');}
+};
+
 document.getElementById('settingsForm').addEventListener('submit',async event=>{
   event.preventDefault();const button=document.getElementById('saveButton');button.disabled=true;setStatus(saveStatus,'Uploading images and publishing changes…');
   try{
@@ -119,10 +143,15 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const headerDataUrl=await compressImage(document.getElementById('headerFile').files[0],1400,800,.78);
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const menu=readMenuEditor();
-    const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:menu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
+    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)));
+    const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
+    Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
+      const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
+      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,item:{name:item.name,description:item.description,prices:item.prices,imageDataUrl,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+    });
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
-    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
+    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
   }catch(error){setStatus(saveStatus,error.message||'Could not publish changes.','error');}finally{button.disabled=false;}
 });
 

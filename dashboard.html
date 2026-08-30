@@ -32,7 +32,19 @@
         <section class="panel"><div class="panel-title"><span>03</span><div><h2>Announcement Banner</h2><p>Publish an important message above the menu.</p></div></div>
           <label class="toggle-row"><input id="announcementVisible" type="checkbox" checked><span>Show announcement banner</span></label><label>Announcement message<input id="announcementText" maxlength="140" placeholder="Example: Family Pack available today — order before 7 PM"></label><label>Banner speed <span id="speedValue">34 seconds</span><input id="announcementSpeed" type="range" min="10" max="60" value="34"></label>
         </section>
-        <section class="panel"><div class="panel-title"><span>04</span><div><h2>Menu Prices & Descriptions</h2><p>Edit each food description and size price. New prices automatically update the cart, confirmation and WhatsApp order.</p></div></div><div id="menuEditor" class="menu-editor"></div></section>
+        <section class="panel"><div class="panel-title"><span>04</span><div><h2>Menu Items</h2><p>Edit existing dishes or add a completely new food item. Every saved item becomes orderable on the customer website.</p></div></div>
+          <button id="showNewItemForm" class="add-item-button" type="button">＋ Add New Item</button>
+          <div id="newItemForm" class="new-item-form" hidden>
+            <h3>New food item</h3>
+            <label>Food name<input id="newItemName" maxlength="80" placeholder="Example: Chicken Momo"></label>
+            <label>Description<textarea id="newItemDescription" rows="3" maxlength="260" placeholder="Describe the dish for customers"></textarea></label>
+            <label>Food image<input id="newItemImage" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <div class="two-columns"><label>Size/portion<input id="newItemSize" maxlength="30" placeholder="Example: Plate"></label><label>Price (₹)<input id="newItemPrice" type="number" min="0" step="1" placeholder="100"></label></div>
+            <div class="new-item-actions"><button id="cancelNewItem" type="button">Cancel</button><button id="addNewItem" class="primary-action" type="button">Add Item to Menu</button></div>
+            <p id="newItemStatus" class="status" aria-live="polite"></p>
+          </div>
+          <div id="menuEditor" class="menu-editor"></div>
+        </section>
         <div class="save-bar"><p id="saveStatus" class="status" aria-live="polite">Changes are not published until you tap Save.</p><button id="saveButton" class="primary-action" type="submit">Save & Publish Changes</button></div>
       </form>
 
@@ -44,6 +56,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js?v=20260829-3"></script>
-<script src="dashboard.js?v=20260829-3"></script>
+<script src="dashboard.js?v=20260829-4"></script>
 </body>
 </html>
