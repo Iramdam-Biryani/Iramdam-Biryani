@@ -69,6 +69,11 @@ window.applyLiveStoreSettings=settings=>{
   updateStoreStatus();
 };
 
+window.applyLiveBannerPhoto=(slot,dataUrl)=>{
+  if(!dataUrl) return;
+  document.querySelectorAll(`[data-banner-slot="${slot}"]`).forEach(image=>{image.src=dataUrl;image.classList.add('custom-banner-photo');});
+};
+
 window.applyLiveMenu=items=>{
   Object.values(items).forEach(item=>{
     const card=[...document.querySelectorAll('.card')].find(element=>element.dataset.item===item.name);

@@ -31,6 +31,12 @@
         </section>
         <section class="panel"><div class="panel-title"><span>03</span><div><h2>Announcement Banner</h2><p>Publish an important message above the menu.</p></div></div>
           <label class="toggle-row"><input id="announcementVisible" type="checkbox" checked><span>Show announcement banner</span></label><label>Announcement message<input id="announcementText" maxlength="140" placeholder="Example: Family Pack available today — order before 7 PM"></label><label>Banner speed <span id="speedValue">34 seconds</span><input id="announcementSpeed" type="range" min="10" max="60" value="34"></label>
+          <div class="banner-photo-manager"><h3>Moving food photos</h3><p>Choose only the photos you want to replace. Unchanged photos will remain as they are.</p><div class="banner-photo-grid">
+            <label><span>Photo 1</span><img id="bannerPreview1" alt="Moving banner photo 1 preview"><input id="bannerFile1" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <label><span>Photo 2</span><img id="bannerPreview2" alt="Moving banner photo 2 preview"><input id="bannerFile2" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <label><span>Photo 3</span><img id="bannerPreview3" alt="Moving banner photo 3 preview"><input id="bannerFile3" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <label><span>Photo 4</span><img id="bannerPreview4" alt="Moving banner photo 4 preview"><input id="bannerFile4" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          </div><small>Use landscape JPG, PNG or WebP images under 5 MB.</small></div>
         </section>
         <section class="panel"><div class="panel-title"><span>04</span><div><h2>Menu Items</h2><p>Edit existing dishes or add a completely new food item. Every saved item becomes orderable on the customer website.</p></div></div>
           <button id="showNewItemForm" class="add-item-button" type="button">＋ Add New Item</button>
@@ -56,6 +62,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js?v=20260829-3"></script>
-<script src="dashboard.js?v=20260829-4"></script>
+<script src="dashboard.js?v=20260830-2"></script>
 </body>
 </html>

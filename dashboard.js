@@ -87,7 +87,7 @@ async function loadSettings(){
   const [snapshot,menuSnapshot,customSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null)]);
   currentSettings=snapshot.exists?snapshot.data():{};
   if(menuSnapshot&&menuSnapshot.exists) currentMenu={...currentMenu,...menuSnapshot.data().items};
-  if(customSnapshot) customSnapshot.forEach(doc=>{const data=doc.data();currentMenu[data.key||doc.id.replace(/^menu_/, '')]={...data.item,custom:true,assetDocId:doc.id};});
+  if(customSnapshot) customSnapshot.forEach(doc=>{const data=doc.data();currentMenu[data.key||doc.id.replace(/^menu_/, '')]={...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||'',custom:true,assetDocId:doc.id};});
   renderMenuEditor();
   document.getElementById('openingTime').value=minutesToTime(currentSettings.openMinutes??600);
   document.getElementById('closingTime').value=minutesToTime(currentSettings.closeMinutes??1200);
@@ -98,9 +98,10 @@ async function loadSettings(){
   document.getElementById('announcementVisible').checked=currentSettings.announcementVisible!==false;
   document.getElementById('announcementText').value=currentSettings.announcementText||'';
   document.getElementById('announcementSpeed').value=currentSettings.announcementSpeed||34;
-  const [logoAsset,headerAsset]=await Promise.all([db.collection('storeAssets').doc('logo').get(),db.collection('storeAssets').doc('header').get()]);
+  const [logoAsset,headerAsset,...bannerAssets]=await Promise.all([db.collection('storeAssets').doc('logo').get(),db.collection('storeAssets').doc('header').get(),...Array.from({length:4},(_,index)=>db.collection('storeAssets').doc(`announcement${index+1}`).get())]);
   if(logoAsset.exists){const logo=document.getElementById('logoPreview');logo.src=logoAsset.data().dataUrl;logo.hidden=false;}
   if(headerAsset.exists)document.getElementById('headerPreview').style.backgroundImage=`linear-gradient(rgba(30,10,0,.62),rgba(30,10,0,.72)),url("${headerAsset.data().dataUrl}")`;
+  bannerAssets.forEach((asset,index)=>{const preview=document.getElementById(`bannerPreview${index+1}`);preview.src=asset.exists?asset.data().dataUrl:'food-announcement-strip.png';});
   updatePreview();setStatus(saveStatus,'Live settings loaded.','success');
 }
 
@@ -141,16 +142,18 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
   try{
     const logoDataUrl=await compressImage(document.getElementById('logoFile').files[0],320,320,.82);
     const headerDataUrl=await compressImage(document.getElementById('headerFile').files[0],1400,800,.78);
+    const bannerDataUrls=await Promise.all(Array.from({length:4},(_,index)=>compressImage(document.getElementById(`bannerFile${index+1}`).files[0],1000,520,.78)));
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const menu=readMenuEditor();
     const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)));
     const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
       const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
-      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,item:{name:item.name,description:item.description,prices:item.prices,imageDataUrl,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
     });
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    bannerDataUrls.forEach((dataUrl,index)=>{if(dataUrl) writes.push(db.collection('storeAssets').doc(`announcement${index+1}`).set({dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));});
     await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
   }catch(error){setStatus(saveStatus,error.message||'Could not publish changes.','error');}finally{button.disabled=false;}
 });
@@ -169,3 +172,4 @@ function updatePreview(){
 document.querySelectorAll('#settingsForm input,#settingsForm select').forEach(input=>input.addEventListener('input',updatePreview));
 document.getElementById('logoFile').addEventListener('change',event=>{const file=event.target.files[0];if(file){const image=document.getElementById('logoPreview');image.src=URL.createObjectURL(file);image.hidden=false;}});
 document.getElementById('headerFile').addEventListener('change',event=>{const file=event.target.files[0];if(file)document.getElementById('headerPreview').style.backgroundImage=`linear-gradient(rgba(30,10,0,.62),rgba(30,10,0,.72)),url("${URL.createObjectURL(file)}")`;});
+Array.from({length:4},(_,index)=>index+1).forEach(slot=>document.getElementById(`bannerFile${slot}`).addEventListener('change',event=>{const file=event.target.files[0];if(file)document.getElementById(`bannerPreview${slot}`).src=URL.createObjectURL(file);}));
