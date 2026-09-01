@@ -270,7 +270,7 @@ document.getElementById('clearCart').onclick=()=>{
 
 const STORE_LAT=24.817522;
 const STORE_LNG=93.925204;
-const MAX_DELIVERY_DISTANCE_KM=10;
+const MAX_DELIVERY_DISTANCE_KM=7;
 
 let customerLocation='';
 let customerDistanceKm=null;
@@ -308,7 +308,7 @@ document.getElementById('shareLocation').onclick=()=>{
       if(customerDistanceKm<=MAX_DELIVERY_DISTANCE_KM){
         status.textContent=`✅ Location accepted — ${customerDistanceKm.toFixed(1)} km from the store`;
       }else{
-        status.textContent=`❌ ${customerDistanceKm.toFixed(1)} km from the store — outside our 10 km delivery area`;
+        status.textContent=`❌ ${customerDistanceKm.toFixed(1)} km from the store — outside our ${MAX_DELIVERY_DISTANCE_KM} km delivery area`;
       }
       render();
     },
@@ -372,7 +372,7 @@ document.getElementById('sendWhatsApp').onclick=()=>{
 
   if(type==='Delivery'&&customerDistanceKm>MAX_DELIVERY_DISTANCE_KM){
     document.getElementById('cartPanel').classList.remove('open');
-    alert(`Sorry, delivery is available only within 10 km of Iramdam Biryani. Your location is ${customerDistanceKm.toFixed(1)} km away.`);
+    alert(`Sorry, delivery is available only within ${MAX_DELIVERY_DISTANCE_KM} km of Iramdam Biryani. Your location is ${customerDistanceKm.toFixed(1)} km away.`);
     document.getElementById('shareLocation').focus();
     return;
   }
