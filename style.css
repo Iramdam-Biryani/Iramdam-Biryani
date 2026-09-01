@@ -93,4 +93,5 @@ body.photo-viewer-open{overflow:hidden}.photo-viewer{position:fixed;inset:0;z-in
 .store-logo{display:block;width:84px;height:84px;margin:0 auto 12px;border:3px solid #fff;border-radius:50%;background:#fff;object-fit:cover;box-shadow:0 7px 20px rgba(0,0,0,.3)}.store-logo[hidden]{display:none}.announcement[hidden]{display:none}.announcement-message{position:absolute;left:50%;top:8px;z-index:3;max-width:min(90%,720px);margin:0;padding:8px 15px;transform:translateX(-50%);border-radius:999px;background:rgba(70,22,0,.9);color:#fff;font-size:.88rem;font-weight:800;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}.announcement-message[hidden]{display:none}
 @media(max-width:700px){.announcement-message{top:5px;padding:6px 11px;font-size:.72rem}}
 .custom-food-image{width:100%;height:250px;object-fit:cover;display:block}
-.food-slide img.custom-banner-photo{left:0;width:100%;height:100%;object-fit:cover}
+.food-slide.custom-banner-slide{width:auto;background:#1d120d}
+.food-slide.custom-banner-slide img.custom-banner-photo{position:static;display:block;left:auto;width:auto;max-width:none;height:100%;object-fit:contain}

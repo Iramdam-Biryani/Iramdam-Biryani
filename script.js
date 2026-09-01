@@ -71,7 +71,7 @@ window.applyLiveStoreSettings=settings=>{
 
 window.applyLiveBannerPhoto=(slot,dataUrl)=>{
   if(!dataUrl) return;
-  document.querySelectorAll(`[data-banner-slot="${slot}"]`).forEach(image=>{image.src=dataUrl;image.classList.add('custom-banner-photo');});
+  document.querySelectorAll(`[data-banner-slot="${slot}"]`).forEach(image=>{image.src=dataUrl;image.classList.add('custom-banner-photo');image.closest('.food-slide')?.classList.add('custom-banner-slide');});
 };
 
 const BUILTIN_MENU_NAMES={chickenBiryani:'Chicken Biryani',porkCurry:'Pork Curry',broilerMapum:'Chicken Broiler Mapum Thongba',ngaheiMapum:'Ngahei Mapum Thongba',koilerMapum:'Chicken Koiler Mapum Thongba',porkMapum:'Pork Mapum Thongba'};
