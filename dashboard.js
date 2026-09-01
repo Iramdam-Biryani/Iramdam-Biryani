@@ -199,7 +199,9 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
       const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
-      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,ready:item.ready!==false,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      const customItemData={type:'menuItem',key,item:{name:item.name,description:item.description,prices:item.prices,ready:item.ready!==false,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+      if(imageDataUrl){customItemData.dataUrl=imageDataUrl;menu[key].imageDataUrl=imageDataUrl;}
+      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set(customItemData,{merge:true}));
     });
     Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)&&pendingItemImages[key]).forEach(([key])=>writes.push(db.collection('storeAssets').doc(`menuImage_${key}`).set({type:'menuItemImage',key,dataUrl:pendingItemImages[key],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
     Object.entries(pendingSecondaryImages).forEach(([pendingKey,dataUrl])=>{const separator=pendingKey.lastIndexOf('_');const key=pendingKey.slice(0,separator),slot=Number(pendingKey.slice(separator+1));if(menu[key]&&dataUrl)writes.push(db.collection('storeAssets').doc(`menuSecondary_${key}_${slot}`).set({type:'menuItemSecondaryImage',key,slot,dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));});
