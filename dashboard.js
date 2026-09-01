@@ -17,6 +17,7 @@ const DEFAULT_MENU={
 let currentMenu=JSON.parse(JSON.stringify(DEFAULT_MENU));
 const BUILTIN_MENU_KEYS=new Set(Object.keys(DEFAULT_MENU));
 const pendingItemImages={};
+const deletedCustomDocIds=new Set();
 
 function setStatus(element,message,type=''){
   element.textContent=message;element.className=`status ${type}`;
@@ -30,6 +31,7 @@ function renderMenuEditor(){
   editor.replaceChildren(...Object.entries(currentMenu).map(([key,item])=>{
     const card=document.createElement('article');card.className='menu-edit-card';card.dataset.menuKey=key;
     if(item.custom){card.classList.add('custom-item');const badge=document.createElement('span');badge.className='custom-badge';badge.textContent='Custom item';card.appendChild(badge);}
+    if(item.hidden)card.classList.add('item-hidden');
     const title=document.createElement('h3');title.textContent=item.name;card.appendChild(title);
     const imageEditor=document.createElement('div');imageEditor.className='menu-image-editor';
     const image=document.createElement('img');image.alt=`${item.name} preview`;image.src=pendingItemImages[key]||item.imageDataUrl||DEFAULT_MENU[key]?.imageUrl||'';imageEditor.appendChild(image);
@@ -45,7 +47,21 @@ function renderMenuEditor(){
       priceGrid.appendChild(createVariantRow(size,price));
     });
     card.appendChild(priceGrid);
-    const addVariant=document.createElement('button');addVariant.type='button';addVariant.className='add-variant';addVariant.textContent='＋ Add size variant';addVariant.onclick=()=>priceGrid.appendChild(createVariantRow('',0));card.appendChild(addVariant);return card;
+    const addVariant=document.createElement('button');addVariant.type='button';addVariant.className='add-variant';addVariant.textContent='＋ Add size variant';addVariant.onclick=()=>priceGrid.appendChild(createVariantRow('',0));card.appendChild(addVariant);
+    const itemAction=document.createElement('button');itemAction.type='button';itemAction.className=item.custom?'delete-menu-item':'toggle-menu-item';
+    if(item.custom){
+      itemAction.textContent='Delete food item';
+      itemAction.onclick=()=>{
+        if(!confirm(`Delete ${item.name}? It will be removed from the customer website after you save.`))return;
+        deletedCustomDocIds.add(item.assetDocId||`menu_${key}`);delete pendingItemImages[key];delete currentMenu[key];card.remove();setStatus(saveStatus,`${item.name} marked for deletion. Tap Save & Publish Changes.`);
+      };
+    }else{
+      itemAction.textContent=item.hidden?'Restore item to website':'Hide item from website';
+      itemAction.onclick=()=>{
+        item.hidden=!item.hidden;card.classList.toggle('item-hidden',item.hidden);itemAction.textContent=item.hidden?'Restore item to website':'Hide item from website';setStatus(saveStatus,item.hidden?`${item.name} will be hidden after you save.`:`${item.name} will return after you save.`);
+      };
+    }
+    card.appendChild(itemAction);return card;
   }));
 }
 
@@ -161,17 +177,18 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const bannerDataUrls=await Promise.all(Array.from({length:4},(_,index)=>compressImage(document.getElementById(`bannerFile${index+1}`).files[0],1000,520,.78)));
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const menu=readMenuEditor();
-    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)).map(([key,item])=>[key,{name:item.name,description:item.description,prices:item.prices}]));
+    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)).map(([key,item])=>[key,{name:item.name,description:item.description,prices:item.prices,hidden:item.hidden===true}]));
     const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
       const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
       writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
     });
     Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)&&pendingItemImages[key]).forEach(([key])=>writes.push(db.collection('storeAssets').doc(`menuImage_${key}`).set({type:'menuItemImage',key,dataUrl:pendingItemImages[key],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
+    deletedCustomDocIds.forEach(docId=>writes.push(db.collection('storeAssets').doc(docId).delete()));
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     bannerDataUrls.forEach((dataUrl,index)=>{if(dataUrl) writes.push(db.collection('storeAssets').doc(`announcement${index+1}`).set({dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));});
-    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
+    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);deletedCustomDocIds.clear();setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
   }catch(error){setStatus(saveStatus,error.message||'Could not publish changes.','error');}finally{button.disabled=false;}
 });
 

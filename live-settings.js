@@ -17,9 +17,10 @@
     }));
     firebase.firestore().collection('storeAssets').where('type','==','menuItem').onSnapshot(snapshot=>{
       snapshot.docChanges().forEach(change=>{
-        if(change.type==='removed') return;
+        const key=change.doc.data().key||change.doc.id.replace(/^menu_/,'');
+        if(change.type==='removed'){if(window.removeCustomMenuItem)window.removeCustomMenuItem(key);return;}
         const data=change.doc.data();
-        if(window.applyCustomMenuItem) window.applyCustomMenuItem(data.key||change.doc.id.replace(/^menu_/,''),{...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||''});
+        if(window.applyCustomMenuItem) window.applyCustomMenuItem(key,{...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||''});
       });
     },error=>console.warn('Custom menu items unavailable:',error.message));
     firebase.firestore().collection('storeAssets').where('type','==','menuItemImage').onSnapshot(snapshot=>{
