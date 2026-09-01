@@ -86,6 +86,7 @@ window.applyLiveBannerPhoto=(slot,dataUrl)=>{
 };
 
 const BUILTIN_MENU_NAMES={chickenBiryani:'Chicken Biryani',porkCurry:'Pork Curry',broilerMapum:'Chicken Broiler Mapum Thongba',ngaheiMapum:'Ngahei Mapum Thongba',koilerMapum:'Chicken Koiler Mapum Thongba',porkMapum:'Pork Mapum Thongba'};
+const LIVE_SECONDARY_IMAGES={};
 window.applyLiveMenu=items=>{
   Object.entries(BUILTIN_MENU_NAMES).forEach(([key,defaultName])=>{
     const item=items[key];
@@ -109,6 +110,19 @@ window.applyLiveMenuItemImage=(key,dataUrl)=>{
   const image=card&&card.querySelector('.food-photo img');if(image){image.src=dataUrl;image.classList.add('custom-food-image');}
 };
 
+window.applyLiveMenuSecondaryImage=(key,slot,dataUrl)=>{
+  if(!key||![1,2].includes(Number(slot))||!dataUrl)return;
+  LIVE_SECONDARY_IMAGES[key]=LIVE_SECONDARY_IMAGES[key]||{};LIVE_SECONDARY_IMAGES[key][Number(slot)]=dataUrl;
+  const name=BUILTIN_MENU_NAMES[key];
+  const card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`)||[...document.querySelectorAll('.card')].find(element=>element.dataset.item===name);
+  if(!card)return;
+  let gallery=card.querySelector('.secondary-gallery');
+  if(!gallery){gallery=document.createElement('div');gallery.className='secondary-gallery';card.querySelector('.food-photo')?.insertAdjacentElement('afterend',gallery);}
+  while(gallery.children.length<2){const image=document.createElement('img');image.loading='lazy';gallery.appendChild(image);}
+  const image=gallery.children[Number(slot)-1];image.src=dataUrl;image.alt=`${card.dataset.item||name||'Food'} secondary photo ${slot}`;image.hidden=false;
+  bindPhotoCard(card);
+};
+
 window.applyCustomMenuItem=(key,item)=>{
   if(!item||!item.name) return;
   let card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`);
@@ -120,6 +134,7 @@ window.applyCustomMenuItem=(key,item)=>{
   card.dataset.item=item.name;card.querySelector('h3').textContent=item.name;card.querySelector('.food-description').textContent=item.description||'';
   setFoodReadyState(card,item.ready!==false);
   const image=card.querySelector('.food-photo img');image.src=item.imageDataUrl||'';image.alt=`${item.name} from Iramdam Biryani`;
+  Object.entries(LIVE_SECONDARY_IMAGES[key]||{}).forEach(([slot,dataUrl])=>window.applyLiveMenuSecondaryImage(key,Number(slot),dataUrl));
   const select=card.querySelector('.size-select');select.replaceChildren(...Object.entries(item.prices||{}).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;}));
   updateStoreStatus();
 };
@@ -468,7 +483,6 @@ function changePhoto(direction){
 }
 
 function bindPhotoCard(card){
-  if(card.dataset.photoBound) return;card.dataset.photoBound='true';
   card.querySelectorAll('.food-photo img,.secondary-gallery img').forEach((image,index)=>{
     image.tabIndex=0;
     image.setAttribute('role','button');

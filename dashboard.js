@@ -7,16 +7,17 @@ const loginStatus=document.getElementById('loginStatus');
 const saveStatus=document.getElementById('saveStatus');
 let auth,db,currentSettings={};
 const DEFAULT_MENU={
-  chickenBiryani:{name:'Chicken Biryani',description:'Description will be added soon.',prices:{Small:170,Large:350,'Family Pack':950},imageUrl:'chicken-biryani-family-pack.jpg'},
-  porkCurry:{name:'Pork Curry',description:'Description will be added soon.',prices:{Small:170,Large:360},imageUrl:'pork-curry-menu.jpg'},
-  broilerMapum:{name:'Chicken Broiler Mapum Thongba',description:'Description will be added soon.',prices:{Small:550,Large:900},imageUrl:'broiler-mapum-thongba.jpg'},
-  ngaheiMapum:{name:'Ngahei Mapum Thongba',description:'Description will be added soon.',prices:{Small:450,Large:750},imageUrl:'ngahei-mapum-thongba.jpg'},
-  koilerMapum:{name:'Chicken Koiler Mapum Thongba',description:'Description will be added soon.',prices:{Full:1100},imageUrl:'koiler-mapum-thongba.jpg'},
-  porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300},imageUrl:'pork-mapum-thongba.jpg'}
+  chickenBiryani:{name:'Chicken Biryani',description:'Description will be added soon.',prices:{Small:170,Large:350,'Family Pack':950},imageUrl:'chicken-biryani-family-pack.jpg',secondaryImageUrls:['chicken-biryani-secondary-1.jpg','chicken-biryani-secondary-2.jpg']},
+  porkCurry:{name:'Pork Curry',description:'Description will be added soon.',prices:{Small:170,Large:360},imageUrl:'pork-curry-menu.jpg',secondaryImageUrls:['pork-curry-secondary-1.jpg','pork-curry-secondary-2.jpg']},
+  broilerMapum:{name:'Chicken Broiler Mapum Thongba',description:'Description will be added soon.',prices:{Small:550,Large:900},imageUrl:'broiler-mapum-thongba.jpg',secondaryImageUrls:['broiler-mapum-secondary-1.jpg','broiler-mapum-secondary-2.jpg']},
+  ngaheiMapum:{name:'Ngahei Mapum Thongba',description:'Description will be added soon.',prices:{Small:450,Large:750},imageUrl:'ngahei-mapum-thongba.jpg',secondaryImageUrls:['ngahei-mapum-secondary-1.jpg','ngahei-mapum-secondary-2.jpg']},
+  koilerMapum:{name:'Chicken Koiler Mapum Thongba',description:'Description will be added soon.',prices:{Full:1100},imageUrl:'koiler-mapum-thongba.jpg',secondaryImageUrls:['koiler-mapum-secondary-1.jpg','koiler-mapum-secondary-2.jpg']},
+  porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300},imageUrl:'pork-mapum-thongba.jpg',secondaryImageUrls:['pork-mapum-secondary-1.jpg','pork-mapum-secondary-2.jpg']}
 };
 let currentMenu=JSON.parse(JSON.stringify(DEFAULT_MENU));
 const BUILTIN_MENU_KEYS=new Set(Object.keys(DEFAULT_MENU));
 const pendingItemImages={};
+const pendingSecondaryImages={};
 const deletedCustomDocIds=new Set();
 
 function setStatus(element,message,type=''){
@@ -39,6 +40,18 @@ function renderMenuEditor(){
     const imageInput=document.createElement('input');imageInput.type='file';imageInput.accept='image/jpeg,image/png,image/webp';imageInput.className='menu-image-input';
     imageInput.addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{pendingItemImages[key]=await compressImage(file,900,700,.75);image.src=pendingItemImages[key];setStatus(saveStatus,'New food image prepared. Tap Save & Publish Changes.');}catch(error){event.target.value='';setStatus(saveStatus,error.message||'Could not prepare this image.','error');}});
     imageLabel.appendChild(imageInput);imageEditor.appendChild(imageLabel);card.appendChild(imageEditor);
+    const secondaryEditor=document.createElement('div');secondaryEditor.className='secondary-image-editor';
+    const secondaryHeading=document.createElement('div');secondaryHeading.className='secondary-image-heading';secondaryHeading.innerHTML='<strong>Secondary food photos</strong><small>These two photos appear below the main food image.</small>';secondaryEditor.appendChild(secondaryHeading);
+    [1,2].forEach(slot=>{
+      const pendingKey=`${key}_${slot}`;const box=document.createElement('label');box.className='secondary-image-slot';
+      const slotTitle=document.createElement('span');slotTitle.textContent=`Secondary photo ${slot}`;
+      const preview=document.createElement('img');preview.alt=`${item.name} secondary photo ${slot} preview`;preview.src=pendingSecondaryImages[pendingKey]||item.secondaryImageDataUrls?.[slot-1]||item.secondaryImageUrls?.[slot-1]||DEFAULT_MENU[key]?.secondaryImageUrls?.[slot-1]||'';
+      const inputText=document.createElement('span');inputText.className='secondary-input-text';inputText.textContent='Add/change secondary photo';
+      const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.className='secondary-image-input';
+      input.addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{pendingSecondaryImages[pendingKey]=await compressImage(file,900,700,.75);preview.src=pendingSecondaryImages[pendingKey];setStatus(saveStatus,`New secondary photo ${slot} prepared. Tap Save & Publish Changes.`);}catch(error){event.target.value='';setStatus(saveStatus,error.message||'Could not prepare this image.','error');}});
+      box.append(slotTitle,preview,inputText,input);secondaryEditor.appendChild(box);
+    });
+    card.appendChild(secondaryEditor);
     const descriptionLabel=document.createElement('label');descriptionLabel.textContent='Food description';
     const description=document.createElement('textarea');description.rows=3;description.maxLength=260;description.className='menu-description';description.value=item.description||'';descriptionLabel.appendChild(description);card.appendChild(descriptionLabel);
     const variantHeading=document.createElement('div');variantHeading.className='variant-heading';variantHeading.innerHTML='<strong>Size / price variants</strong><small>Add choices such as Small, Large, Full or Plate.</small>';card.appendChild(variantHeading);
@@ -57,7 +70,7 @@ function renderMenuEditor(){
       itemAction.textContent='Delete food item';
       itemAction.onclick=()=>{
         if(!confirm(`Delete ${item.name}? It will be removed from the customer website after you save.`))return;
-        deletedCustomDocIds.add(item.assetDocId||`menu_${key}`);delete pendingItemImages[key];delete currentMenu[key];card.remove();setStatus(saveStatus,`${item.name} marked for deletion. Tap Save & Publish Changes.`);
+        deletedCustomDocIds.add(item.assetDocId||`menu_${key}`);deletedCustomDocIds.add(`menuSecondary_${key}_1`);deletedCustomDocIds.add(`menuSecondary_${key}_2`);delete pendingItemImages[key];delete pendingSecondaryImages[`${key}_1`];delete pendingSecondaryImages[`${key}_2`];delete currentMenu[key];card.remove();setStatus(saveStatus,`${item.name} marked for deletion. Tap Save & Publish Changes.`);
       };
     }else{
       itemAction.textContent=item.hidden?'Restore item to website':'Hide item from website';
@@ -119,11 +132,12 @@ document.getElementById('logoutButton').onclick=()=>auth.signOut();
 
 async function loadSettings(){
   setStatus(saveStatus,'Loading live settings…');
-  const [snapshot,menuSnapshot,customSnapshot,imageSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItemImage').get().catch(()=>null)]);
+  const [snapshot,menuSnapshot,customSnapshot,imageSnapshot,secondarySnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItemImage').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItemSecondaryImage').get().catch(()=>null)]);
   currentSettings=snapshot.exists?snapshot.data():{};
   if(menuSnapshot&&menuSnapshot.exists) currentMenu={...currentMenu,...menuSnapshot.data().items};
   if(customSnapshot) customSnapshot.forEach(doc=>{const data=doc.data();currentMenu[data.key||doc.id.replace(/^menu_/, '')]={...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||'',custom:true,assetDocId:doc.id};});
   if(imageSnapshot) imageSnapshot.forEach(doc=>{const data=doc.data();if(currentMenu[data.key])currentMenu[data.key].imageDataUrl=data.dataUrl||'';});
+  if(secondarySnapshot) secondarySnapshot.forEach(doc=>{const data=doc.data();if(!currentMenu[data.key])return;currentMenu[data.key].secondaryImageDataUrls=currentMenu[data.key].secondaryImageDataUrls||[];currentMenu[data.key].secondaryImageDataUrls[Number(data.slot)-1]=data.dataUrl||'';});
   renderMenuEditor();
   document.getElementById('openingTime').value=minutesToTime(currentSettings.openMinutes??600);
   document.getElementById('closingTime').value=minutesToTime(currentSettings.closeMinutes??1200);
@@ -188,11 +202,12 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
       writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,ready:item.ready!==false,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
     });
     Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)&&pendingItemImages[key]).forEach(([key])=>writes.push(db.collection('storeAssets').doc(`menuImage_${key}`).set({type:'menuItemImage',key,dataUrl:pendingItemImages[key],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
+    Object.entries(pendingSecondaryImages).forEach(([pendingKey,dataUrl])=>{const separator=pendingKey.lastIndexOf('_');const key=pendingKey.slice(0,separator),slot=Number(pendingKey.slice(separator+1));if(menu[key]&&dataUrl)writes.push(db.collection('storeAssets').doc(`menuSecondary_${key}_${slot}`).set({type:'menuItemSecondaryImage',key,slot,dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));});
     deletedCustomDocIds.forEach(docId=>writes.push(db.collection('storeAssets').doc(docId).delete()));
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     bannerDataUrls.forEach((dataUrl,index)=>{if(dataUrl) writes.push(db.collection('storeAssets').doc(`announcement${index+1}`).set({dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));});
-    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);deletedCustomDocIds.clear();setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
+    await Promise.all(writes);currentSettings={...currentSettings,...settings};currentMenu=menu;Object.keys(pendingItemImages).forEach(key=>delete pendingItemImages[key]);Object.keys(pendingSecondaryImages).forEach(key=>delete pendingSecondaryImages[key]);deletedCustomDocIds.clear();setStatus(saveStatus,'✓ Store and menu changes are now live for all customers.','success');
   }catch(error){setStatus(saveStatus,error.message||'Could not publish changes.','error');}finally{button.disabled=false;}
 });
 

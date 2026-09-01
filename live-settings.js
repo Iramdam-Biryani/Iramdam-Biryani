@@ -26,6 +26,9 @@
     firebase.firestore().collection('storeAssets').where('type','==','menuItemImage').onSnapshot(snapshot=>{
       snapshot.docChanges().forEach(change=>{if(change.type!=='removed'&&window.applyLiveMenuItemImage){const data=change.doc.data();window.applyLiveMenuItemImage(data.key,data.dataUrl);}});
     },error=>console.warn('Menu item images unavailable:',error.message));
+    firebase.firestore().collection('storeAssets').where('type','==','menuItemSecondaryImage').onSnapshot(snapshot=>{
+      snapshot.docChanges().forEach(change=>{if(change.type!=='removed'&&window.applyLiveMenuSecondaryImage){const data=change.doc.data();window.applyLiveMenuSecondaryImage(data.key,data.slot,data.dataUrl);}});
+    },error=>console.warn('Secondary menu images unavailable:',error.message));
     firebase.firestore().collection('store').doc('menu').onSnapshot(snapshot=>{
       if(snapshot.exists&&window.applyLiveMenu) window.applyLiveMenu(snapshot.data().items||{});
     });
