@@ -7,12 +7,12 @@ const loginStatus=document.getElementById('loginStatus');
 const saveStatus=document.getElementById('saveStatus');
 let auth,db,currentSettings={};
 const DEFAULT_MENU={
-  chickenBiryani:{name:'Chicken Biryani',description:'Description will be added soon.',prices:{Small:170,Large:350,'Family Pack':950}},
-  porkCurry:{name:'Pork Curry',description:'Description will be added soon.',prices:{Small:170,Large:360}},
-  broilerMapum:{name:'Chicken Broiler Mapum Thongba',description:'Description will be added soon.',prices:{Small:550,Large:900}},
-  ngaheiMapum:{name:'Ngahei Mapum Thongba',description:'Description will be added soon.',prices:{Small:450,Large:750}},
-  koilerMapum:{name:'Chicken Koiler Mapum Thongba',description:'Description will be added soon.',prices:{Full:1100}},
-  porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300}}
+  chickenBiryani:{name:'Chicken Biryani',description:'Description will be added soon.',prices:{Small:170,Large:350,'Family Pack':950},imageUrl:'chicken-biryani-family-pack.jpg'},
+  porkCurry:{name:'Pork Curry',description:'Description will be added soon.',prices:{Small:170,Large:360},imageUrl:'pork-curry-menu.jpg'},
+  broilerMapum:{name:'Chicken Broiler Mapum Thongba',description:'Description will be added soon.',prices:{Small:550,Large:900},imageUrl:'broiler-mapum-thongba.jpg'},
+  ngaheiMapum:{name:'Ngahei Mapum Thongba',description:'Description will be added soon.',prices:{Small:450,Large:750},imageUrl:'ngahei-mapum-thongba.jpg'},
+  koilerMapum:{name:'Chicken Koiler Mapum Thongba',description:'Description will be added soon.',prices:{Full:1100},imageUrl:'koiler-mapum-thongba.jpg'},
+  porkMapum:{name:'Pork Mapum Thongba',description:'Description will be added soon.',prices:{Full:2300},imageUrl:'pork-mapum-thongba.jpg'}
 };
 let currentMenu=JSON.parse(JSON.stringify(DEFAULT_MENU));
 const BUILTIN_MENU_KEYS=new Set(Object.keys(DEFAULT_MENU));
@@ -31,22 +31,37 @@ function renderMenuEditor(){
     const card=document.createElement('article');card.className='menu-edit-card';card.dataset.menuKey=key;
     if(item.custom){card.classList.add('custom-item');const badge=document.createElement('span');badge.className='custom-badge';badge.textContent='Custom item';card.appendChild(badge);}
     const title=document.createElement('h3');title.textContent=item.name;card.appendChild(title);
+    const imageEditor=document.createElement('div');imageEditor.className='menu-image-editor';
+    const image=document.createElement('img');image.alt=`${item.name} preview`;image.src=pendingItemImages[key]||item.imageDataUrl||DEFAULT_MENU[key]?.imageUrl||'';imageEditor.appendChild(image);
+    const imageLabel=document.createElement('label');imageLabel.textContent='Change food image';
+    const imageInput=document.createElement('input');imageInput.type='file';imageInput.accept='image/jpeg,image/png,image/webp';imageInput.className='menu-image-input';
+    imageInput.addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{pendingItemImages[key]=await compressImage(file,900,700,.75);image.src=pendingItemImages[key];setStatus(saveStatus,'New food image prepared. Tap Save & Publish Changes.');}catch(error){event.target.value='';setStatus(saveStatus,error.message||'Could not prepare this image.','error');}});
+    imageLabel.appendChild(imageInput);imageEditor.appendChild(imageLabel);card.appendChild(imageEditor);
     const descriptionLabel=document.createElement('label');descriptionLabel.textContent='Food description';
     const description=document.createElement('textarea');description.rows=3;description.maxLength=260;description.className='menu-description';description.value=item.description||'';descriptionLabel.appendChild(description);card.appendChild(descriptionLabel);
+    const variantHeading=document.createElement('div');variantHeading.className='variant-heading';variantHeading.innerHTML='<strong>Size / price variants</strong><small>Add choices such as Small, Large, Full or Plate.</small>';card.appendChild(variantHeading);
     const priceGrid=document.createElement('div');priceGrid.className='menu-price-grid';
     Object.entries(item.prices).forEach(([size,price])=>{
-      const label=document.createElement('label');label.textContent=`${size} price (₹)`;
-      const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.required=true;input.className='menu-price';input.dataset.size=size;input.value=price;label.appendChild(input);priceGrid.appendChild(label);
+      priceGrid.appendChild(createVariantRow(size,price));
     });
-    card.appendChild(priceGrid);return card;
+    card.appendChild(priceGrid);
+    const addVariant=document.createElement('button');addVariant.type='button';addVariant.className='add-variant';addVariant.textContent='＋ Add size variant';addVariant.onclick=()=>priceGrid.appendChild(createVariantRow('',0));card.appendChild(addVariant);return card;
   }));
+}
+
+function createVariantRow(size,price){
+  const row=document.createElement('div');row.className='variant-row';
+  const sizeLabel=document.createElement('label');sizeLabel.textContent='Size / portion';const sizeInput=document.createElement('input');sizeInput.className='variant-name';sizeInput.maxLength=30;sizeInput.placeholder='Example: Large';sizeInput.value=size;sizeLabel.appendChild(sizeInput);
+  const priceLabel=document.createElement('label');priceLabel.textContent='Price (₹)';const priceInput=document.createElement('input');priceInput.type='number';priceInput.min='0';priceInput.step='1';priceInput.required=true;priceInput.className='menu-price';priceInput.value=price;priceLabel.appendChild(priceInput);
+  const remove=document.createElement('button');remove.type='button';remove.className='remove-variant';remove.textContent='Remove';remove.onclick=()=>row.remove();row.append(sizeLabel,priceLabel,remove);return row;
 }
 
 function readMenuEditor(){
   const menu={};
   document.querySelectorAll('.menu-edit-card').forEach(card=>{
     const key=card.dataset.menuKey,item=currentMenu[key];
-    const prices={};card.querySelectorAll('.menu-price').forEach(input=>prices[input.dataset.size]=Number(input.value));
+    const prices={};card.querySelectorAll('.variant-row').forEach(row=>{const size=row.querySelector('.variant-name').value.trim(),price=Number(row.querySelector('.menu-price').value);if(size&&Number.isFinite(price)&&price>=0)prices[size]=price;});
+    if(!Object.keys(prices).length)throw new Error(`${item.name} needs at least one complete size and price variant.`);
     menu[key]={...item,name:item.name,description:card.querySelector('.menu-description').value.trim(),prices};
   });
   return menu;
@@ -84,10 +99,11 @@ document.getElementById('logoutButton').onclick=()=>auth.signOut();
 
 async function loadSettings(){
   setStatus(saveStatus,'Loading live settings…');
-  const [snapshot,menuSnapshot,customSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null)]);
+  const [snapshot,menuSnapshot,customSnapshot,imageSnapshot]=await Promise.all([db.collection('store').doc('settings').get(),db.collection('store').doc('menu').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItem').get().catch(()=>null),db.collection('storeAssets').where('type','==','menuItemImage').get().catch(()=>null)]);
   currentSettings=snapshot.exists?snapshot.data():{};
   if(menuSnapshot&&menuSnapshot.exists) currentMenu={...currentMenu,...menuSnapshot.data().items};
   if(customSnapshot) customSnapshot.forEach(doc=>{const data=doc.data();currentMenu[data.key||doc.id.replace(/^menu_/, '')]={...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||'',custom:true,assetDocId:doc.id};});
+  if(imageSnapshot) imageSnapshot.forEach(doc=>{const data=doc.data();if(currentMenu[data.key])currentMenu[data.key].imageDataUrl=data.dataUrl||'';});
   renderMenuEditor();
   document.getElementById('openingTime').value=minutesToTime(currentSettings.openMinutes??600);
   document.getElementById('closingTime').value=minutesToTime(currentSettings.closeMinutes??1200);
@@ -145,12 +161,13 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const bannerDataUrls=await Promise.all(Array.from({length:4},(_,index)=>compressImage(document.getElementById(`bannerFile${index+1}`).files[0],1000,520,.78)));
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const menu=readMenuEditor();
-    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)));
+    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)).map(([key,item])=>[key,{name:item.name,description:item.description,prices:item.prices}]));
     const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
       const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
       writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
     });
+    Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)&&pendingItemImages[key]).forEach(([key])=>writes.push(db.collection('storeAssets').doc(`menuImage_${key}`).set({type:'menuItemImage',key,dataUrl:pendingItemImages[key],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
     if(logoDataUrl) writes.push(db.collection('storeAssets').doc('logo').set({dataUrl:logoDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     if(headerDataUrl) writes.push(db.collection('storeAssets').doc('header').set({dataUrl:headerDataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     bannerDataUrls.forEach((dataUrl,index)=>{if(dataUrl) writes.push(db.collection('storeAssets').doc(`announcement${index+1}`).set({dataUrl,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));});

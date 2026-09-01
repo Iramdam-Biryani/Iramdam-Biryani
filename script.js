@@ -79,11 +79,18 @@ window.applyLiveMenu=items=>{
     const card=[...document.querySelectorAll('.card')].find(element=>element.dataset.item===item.name);
     if(!card) return;
     if(item.description) card.querySelector('.food-description').textContent=item.description;
-    card.querySelectorAll('.size-select option').forEach(option=>{
-      const price=Number(item.prices&&item.prices[option.value]);
-      if(Number.isFinite(price)&&price>=0){option.dataset.price=String(price);option.textContent=`${option.value} — ₹${price}`;}
-    });
+    const select=card.querySelector('.size-select');
+    const options=Object.entries(item.prices||{}).filter(([,price])=>Number.isFinite(Number(price))&&Number(price)>=0).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;});
+    if(options.length)select.replaceChildren(...options);
   });
+};
+
+const BUILTIN_MENU_NAMES={chickenBiryani:'Chicken Biryani',porkCurry:'Pork Curry',broilerMapum:'Chicken Broiler Mapum Thongba',ngaheiMapum:'Ngahei Mapum Thongba',koilerMapum:'Chicken Koiler Mapum Thongba',porkMapum:'Pork Mapum Thongba'};
+window.applyLiveMenuItemImage=(key,dataUrl)=>{
+  if(!key||!dataUrl)return;
+  const name=BUILTIN_MENU_NAMES[key];
+  const card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`)||[...document.querySelectorAll('.card')].find(element=>element.dataset.item===name);
+  const image=card&&card.querySelector('.food-photo img');if(image){image.src=dataUrl;image.classList.add('custom-food-image');}
 };
 
 window.applyCustomMenuItem=(key,item)=>{

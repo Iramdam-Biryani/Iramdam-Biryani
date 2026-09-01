@@ -22,6 +22,9 @@
         if(window.applyCustomMenuItem) window.applyCustomMenuItem(data.key||change.doc.id.replace(/^menu_/,''),{...data.item,imageDataUrl:data.dataUrl||data.item.imageDataUrl||''});
       });
     },error=>console.warn('Custom menu items unavailable:',error.message));
+    firebase.firestore().collection('storeAssets').where('type','==','menuItemImage').onSnapshot(snapshot=>{
+      snapshot.docChanges().forEach(change=>{if(change.type!=='removed'&&window.applyLiveMenuItemImage){const data=change.doc.data();window.applyLiveMenuItemImage(data.key,data.dataUrl);}});
+    },error=>console.warn('Menu item images unavailable:',error.message));
     firebase.firestore().collection('store').doc('menu').onSnapshot(snapshot=>{
       if(snapshot.exists&&window.applyLiveMenu) window.applyLiveMenu(snapshot.data().items||{});
     });
