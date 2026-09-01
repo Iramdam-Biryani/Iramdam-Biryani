@@ -48,6 +48,10 @@ function renderMenuEditor(){
     });
     card.appendChild(priceGrid);
     const addVariant=document.createElement('button');addVariant.type='button';addVariant.className='add-variant';addVariant.textContent='＋ Add size variant';addVariant.onclick=()=>priceGrid.appendChild(createVariantRow('',0));card.appendChild(addVariant);
+    const readyAction=document.createElement('button');readyAction.type='button';readyAction.className='ready-menu-item';
+    const refreshReadyState=()=>{const ready=item.ready!==false;card.classList.toggle('item-not-ready',!ready);readyAction.textContent=ready?'✓ Ready — mark as not ready':'✕ Not ready — mark as ready';readyAction.classList.toggle('not-ready',!ready);};
+    readyAction.onclick=()=>{item.ready=item.ready===false;refreshReadyState();setStatus(saveStatus,item.ready?`${item.name} will be ready to order after you save.`:`${item.name} will be marked not ready after you save.`);};
+    refreshReadyState();card.appendChild(readyAction);
     const itemAction=document.createElement('button');itemAction.type='button';itemAction.className=item.custom?'delete-menu-item':'toggle-menu-item';
     if(item.custom){
       itemAction.textContent='Delete food item';
@@ -164,7 +168,7 @@ document.getElementById('addNewItem').onclick=async()=>{
   try{
     setStatus(status,'Preparing the new item…');
     const key=`custom_${Date.now()}`;pendingItemImages[key]=await compressImage(file,900,700,.75);
-    currentMenu[key]={name,description,prices:{[size]:price},custom:true,assetDocId:`menu_${key}`};
+    currentMenu[key]={name,description,prices:{[size]:price},ready:true,custom:true,assetDocId:`menu_${key}`};
     renderMenuEditor();resetNewItemForm();setStatus(saveStatus,'New item prepared. Tap Save & Publish Changes to make it live.');
   }catch(error){setStatus(status,error.message||'Could not prepare this item.','error');}
 };
@@ -177,11 +181,11 @@ document.getElementById('settingsForm').addEventListener('submit',async event=>{
     const bannerDataUrls=await Promise.all(Array.from({length:4},(_,index)=>compressImage(document.getElementById(`bannerFile${index+1}`).files[0],1000,520,.78)));
     const settings={openMinutes:timeToMinutes(document.getElementById('openingTime').value),closeMinutes:timeToMinutes(document.getElementById('closingTime').value),statusMode:document.getElementById('statusMode').value,storeName:document.getElementById('dashboardStoreName').value.trim(),tagline:document.getElementById('dashboardTagline').value.trim(),address:document.getElementById('dashboardAddress').value.trim(),announcementVisible:document.getElementById('announcementVisible').checked,announcementText:document.getElementById('announcementText').value.trim(),announcementSpeed:Number(document.getElementById('announcementSpeed').value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const menu=readMenuEditor();
-    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)).map(([key,item])=>[key,{name:item.name,description:item.description,prices:item.prices,hidden:item.hidden===true}]));
+    const builtInMenu=Object.fromEntries(Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)).map(([key,item])=>[key,{name:item.name,description:item.description,prices:item.prices,hidden:item.hidden===true,ready:item.ready!==false}]));
     const writes=[db.collection('store').doc('settings').set(settings,{merge:true}),db.collection('store').doc('menu').set({items:builtInMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})];
     Object.entries(menu).filter(([,item])=>item.custom).forEach(([key,item])=>{
       const imageDataUrl=pendingItemImages[key]||item.imageDataUrl;
-      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      writes.push(db.collection('storeAssets').doc(item.assetDocId||`menu_${key}`).set({type:'menuItem',key,dataUrl:imageDataUrl||'',item:{name:item.name,description:item.description,prices:item.prices,ready:item.ready!==false,custom:true},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
     });
     Object.entries(menu).filter(([key])=>BUILTIN_MENU_KEYS.has(key)&&pendingItemImages[key]).forEach(([key])=>writes.push(db.collection('storeAssets').doc(`menuImage_${key}`).set({type:'menuItemImage',key,dataUrl:pendingItemImages[key],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
     deletedCustomDocIds.forEach(docId=>writes.push(db.collection('storeAssets').doc(docId).delete()));

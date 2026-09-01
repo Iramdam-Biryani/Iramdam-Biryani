@@ -24,6 +24,17 @@ function closedMessage(){
   return `Iramdam Biryani is currently closed. Ordering is available daily from ${formatMinutes12(STORE_OPEN_MINUTES)} to ${formatMinutes12(STORE_CLOSE_MINUTES)}. Advance orders are not accepted.`;
 }
 
+function setFoodReadyState(card,ready){
+  if(!card)return;
+  card.dataset.foodReady=String(ready);
+  card.classList.toggle('food-not-ready',!ready);
+  let badge=card.querySelector('.food-ready-badge');
+  if(!badge){badge=document.createElement('span');badge.className='food-ready-badge';card.querySelector('.pad')?.prepend(badge);}
+  badge.textContent=ready?'Ready to order':'Not ready today';
+  badge.classList.toggle('not-ready',!ready);
+  if(!ready){let changed=false;for(let index=cart.length-1;index>=0;index--){if(cart[index].name===card.dataset.item){cart.splice(index,1);changed=true;}}if(changed){updateCount();render();}}
+}
+
 function updateStoreStatus(){
   const open=isStoreOpen();
   const status=document.getElementById('storeStatus');
@@ -31,7 +42,7 @@ function updateStoreStatus(){
   status.classList.toggle('open',open);
   status.classList.toggle('closed',!open);
 
-  document.querySelectorAll('.add,.qtybox button').forEach(button=>button.disabled=!open);
+  document.querySelectorAll('.card').forEach(card=>{const ready=card.dataset.foodReady!=='false';card.querySelectorAll('.add,.qtybox button,.size-select').forEach(control=>control.disabled=!open||!ready);});
   document.getElementById('openCart').disabled=!open;
   document.getElementById('sendWhatsApp').disabled=!open;
   document.querySelectorAll('.order-link,.food-slide').forEach(link=>{
@@ -81,12 +92,14 @@ window.applyLiveMenu=items=>{
     const card=[...document.querySelectorAll('.card')].find(element=>element.dataset.item===(item?.name||defaultName));
     if(!card) return;
     card.hidden=item?.hidden===true;
+    setFoodReadyState(card,item?.ready!==false);
     if(!item)return;
     if(item.description) card.querySelector('.food-description').textContent=item.description;
     const select=card.querySelector('.size-select');
     const options=Object.entries(item.prices||{}).filter(([,price])=>Number.isFinite(Number(price))&&Number(price)>=0).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;});
     if(options.length)select.replaceChildren(...options);
   });
+  updateStoreStatus();
 };
 
 window.applyLiveMenuItemImage=(key,dataUrl)=>{
@@ -105,6 +118,7 @@ window.applyCustomMenuItem=(key,item)=>{
     document.getElementById('menuGrid').appendChild(card);bindOrderCard(card);bindPhotoCard(card);
   }
   card.dataset.item=item.name;card.querySelector('h3').textContent=item.name;card.querySelector('.food-description').textContent=item.description||'';
+  setFoodReadyState(card,item.ready!==false);
   const image=card.querySelector('.food-photo img');image.src=item.imageDataUrl||'';image.alt=`${item.name} from Iramdam Biryani`;
   const select=card.querySelector('.size-select');select.replaceChildren(...Object.entries(item.prices||{}).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;}));
   updateStoreStatus();
@@ -198,6 +212,10 @@ function bindOrderCard(card){
   card.querySelector('.plus').onclick=()=>qty.textContent=+qty.textContent+1;
 
   card.querySelector('.add').onclick=()=>{
+    if(card.dataset.foodReady==='false'){
+      alert(`${card.dataset.item} is not ready to order right now.`);
+      return;
+    }
     if(!isStoreOpen()){
       alert(closedMessage());
       return;

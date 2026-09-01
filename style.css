@@ -95,3 +95,4 @@ body.photo-viewer-open{overflow:hidden}.photo-viewer{position:fixed;inset:0;z-in
 .custom-food-image{width:100%;height:250px;object-fit:cover;display:block}
 .food-slide.custom-banner-slide{width:auto;background:#1d120d}
 .food-slide.custom-banner-slide img.custom-banner-photo{position:static;display:block;left:auto;width:auto;max-width:none;height:100%;object-fit:contain}
+.food-ready-badge{display:inline-block;margin:0 0 10px;padding:6px 10px;border-radius:999px;background:#def6e7;color:#126b38;font-size:.78rem;font-weight:800}.food-ready-badge.not-ready{background:#ffe1df;color:#a3201a}.card.food-not-ready .food-photo img{filter:grayscale(.55);opacity:.72}.card.food-not-ready .add{background:#777}.card.food-not-ready .size-select{opacity:.62}
