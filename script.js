@@ -65,7 +65,7 @@ window.applyLiveStoreSettings=settings=>{
   announcement.style.setProperty('--announcement-speed',`${Math.max(10,Number(settings.announcementSpeed)||34)}s`);
   const message=document.getElementById('announcementMessage');
   message.textContent=settings.announcementText||'';
-  message.hidden=!settings.announcementText;
+  message.hidden=settings.announcementVisible===false||!settings.announcementText;
   updateStoreStatus();
 };
 
