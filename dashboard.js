@@ -34,6 +34,14 @@ function renderMenuEditor(){
     if(item.custom){card.classList.add('custom-item');const badge=document.createElement('span');badge.className='custom-badge';badge.textContent='Custom item';card.appendChild(badge);}
     if(item.hidden)card.classList.add('item-hidden');
     const title=document.createElement('h3');title.textContent=item.name;card.appendChild(title);
+    const editNameButton=document.createElement('button');editNameButton.type='button';editNameButton.className='edit-food-name';editNameButton.textContent='✎ Edit food name';
+    const nameEditor=document.createElement('div');nameEditor.className='food-name-editor';nameEditor.hidden=true;
+    const nameLabel=document.createElement('label');nameLabel.textContent='Food name';
+    const nameInput=document.createElement('input');nameInput.className='menu-name';nameInput.value=item.name;nameInput.maxLength=80;nameInput.required=true;
+    nameInput.addEventListener('input',()=>{title.textContent=nameInput.value.trim()||'Food name';setStatus(saveStatus,'Food name changed. Tap Save & Publish Changes.');});
+    nameLabel.appendChild(nameInput);nameEditor.appendChild(nameLabel);
+    editNameButton.onclick=()=>{nameEditor.hidden=!nameEditor.hidden;editNameButton.textContent=nameEditor.hidden?'✎ Edit food name':'✓ Done editing name';if(!nameEditor.hidden)nameInput.focus();};
+    card.append(editNameButton,nameEditor);
     const imageEditor=document.createElement('div');imageEditor.className='menu-image-editor';
     const image=document.createElement('img');image.alt=`${item.name} preview`;image.src=pendingItemImages[key]||item.imageDataUrl||DEFAULT_MENU[key]?.imageUrl||'';imageEditor.appendChild(image);
     const imageLabel=document.createElement('label');imageLabel.textContent='Change food image';
@@ -93,9 +101,12 @@ function readMenuEditor(){
   const menu={};
   document.querySelectorAll('.menu-edit-card').forEach(card=>{
     const key=card.dataset.menuKey,item=currentMenu[key];
+    const name=card.querySelector('.menu-name').value.trim();
+    if(!name)throw new Error('Every food item needs a name.');
+    if(Object.values(menu).some(existing=>existing.name.toLowerCase()===name.toLowerCase()))throw new Error(`The food name “${name}” is already being used.`);
     const prices={};card.querySelectorAll('.variant-row').forEach(row=>{const size=row.querySelector('.variant-name').value.trim(),price=Number(row.querySelector('.menu-price').value);if(size&&Number.isFinite(price)&&price>=0)prices[size]=price;});
-    if(!Object.keys(prices).length)throw new Error(`${item.name} needs at least one complete size and price variant.`);
-    menu[key]={...item,name:item.name,description:card.querySelector('.menu-description').value.trim(),prices};
+    if(!Object.keys(prices).length)throw new Error(`${name} needs at least one complete size and price variant.`);
+    menu[key]={...item,name,description:card.querySelector('.menu-description').value.trim(),prices};
   });
   return menu;
 }

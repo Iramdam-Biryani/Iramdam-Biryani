@@ -90,11 +90,13 @@ const LIVE_SECONDARY_IMAGES={};
 window.applyLiveMenu=items=>{
   Object.entries(BUILTIN_MENU_NAMES).forEach(([key,defaultName])=>{
     const item=items[key];
-    const card=[...document.querySelectorAll('.card')].find(element=>element.dataset.item===(item?.name||defaultName));
+    const card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`)||[...document.querySelectorAll('.card')].find(element=>element.dataset.item===defaultName||element.dataset.item===item?.name);
     if(!card) return;
+    card.dataset.menuKey=key;
     card.hidden=item?.hidden===true;
     setFoodReadyState(card,item?.ready!==false);
     if(!item)return;
+    if(item.name){card.dataset.item=item.name;const heading=card.querySelector('h3');if(heading)heading.textContent=item.name;}
     if(item.description) card.querySelector('.food-description').textContent=item.description;
     const select=card.querySelector('.size-select');
     const options=Object.entries(item.prices||{}).filter(([,price])=>Number.isFinite(Number(price))&&Number(price)>=0).map(([size,price])=>{const option=document.createElement('option');option.value=size;option.dataset.price=String(price);option.textContent=`${size} — ₹${price}`;return option;});
@@ -107,7 +109,7 @@ window.applyLiveMenuItemImage=(key,dataUrl)=>{
   if(!key||!dataUrl)return;
   const name=BUILTIN_MENU_NAMES[key];
   const card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`)||[...document.querySelectorAll('.card')].find(element=>element.dataset.item===name);
-  const image=card&&card.querySelector('.food-photo img');if(image){image.src=dataUrl;image.classList.add('custom-food-image');}
+  if(card)card.dataset.menuKey=key;const image=card&&card.querySelector('.food-photo img');if(image){image.src=dataUrl;image.classList.add('custom-food-image');}
 };
 
 window.applyLiveMenuSecondaryImage=(key,slot,dataUrl)=>{
@@ -116,6 +118,7 @@ window.applyLiveMenuSecondaryImage=(key,slot,dataUrl)=>{
   const name=BUILTIN_MENU_NAMES[key];
   const card=document.querySelector(`.card[data-menu-key="${CSS.escape(key)}"]`)||[...document.querySelectorAll('.card')].find(element=>element.dataset.item===name);
   if(!card)return;
+  card.dataset.menuKey=key;
   let gallery=card.querySelector('.secondary-gallery');
   if(!gallery){gallery=document.createElement('div');gallery.className='secondary-gallery';card.querySelector('.food-photo')?.insertAdjacentElement('afterend',gallery);}
   while(gallery.children.length<2){const image=document.createElement('img');image.loading='lazy';gallery.appendChild(image);}
